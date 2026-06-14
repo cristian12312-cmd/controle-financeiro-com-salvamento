@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle Financeiro</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:900px;margin:20px auto;padding:20px}
+input,button{padding:8px;margin:4px}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{border:1px solid #ccc;padding:8px;text-align:left}
+</style>
+</head>
+<body>
+<h1>Controle Financeiro com Salvamento Automático</h1>
+
+<input id="desc" placeholder="Descrição">
+<input id="valor" type="number" step="0.01" placeholder="Valor (+ receita / - despesa)">
+<button onclick="add()">Adicionar</button>
+<button onclick="limpar()">Limpar Tudo</button>
+
+<h2>Saldo: R$ <span id="total">0.00</span></h2>
+
+<table>
+<thead>
+<tr><th>Descrição</th><th>Valor</th></tr>
+</thead>
+<tbody id="lista"></tbody>
+</table>
+
+<script>
+let dados = JSON.parse(localStorage.getItem("financeiro")) || [];
+
+function salvar(){
+  localStorage.setItem("financeiro", JSON.stringify(dados));
+}
+
+function render(){
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+  let total = 0;
+
+  dados.forEach(item=>{
+    total += item.valor;
+    lista.innerHTML += `<tr><td>${item.desc}</td><td>R$ ${item.valor.toFixed(2)}</td></tr>`;
+  });
+
+  document.getElementById("total").innerText = total.toFixed(2);
+}
+
+function add(){
+  const desc = document.getElementById("desc").value;
+  const valor = parseFloat(document.getElementById("valor").value);
+
+  if(!desc || isNaN(valor)) return;
+
+  dados.push({desc, valor});
+  salvar();
+  render();
+
+  document.getElementById("desc").value="";
+  document.getElementById("valor").value="";
+}
+
+function limpar(){
+  if(confirm("Deseja apagar todos os lançamentos?")){
+    dados=[];
+    salvar();
+    render();
+  }
+}
+
+render();
+</script>
+</body>
+</html>
