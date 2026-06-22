@@ -5,39 +5,54 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Controle Financeiro</title>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 body{
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     max-width: 1000px;
     margin: 20px auto;
     padding: 20px;
+    background: #fff;
+    color: #000;
+    transition: 0.3s;
+}
+
+.dark{
+    background:#121212;
+    color:#fff;
 }
 
 input, select, button{
-    padding: 8px;
-    margin: 4px;
+    padding:8px;
+    margin:4px;
 }
 
 table{
     width:100%;
-    border-collapse: collapse;
+    border-collapse:collapse;
     margin-top:20px;
 }
 
-th, td{
+th,td{
     border:1px solid #ccc;
-    padding:10px;
-    text-align:left;
+    padding:8px;
 }
 
-.receita{
-    color:green;
-    font-weight:bold;
+.receita{color:green;font-weight:bold;}
+.despesa{color:red;font-weight:bold;}
+
+.progress{
+    width:100%;
+    background:#ddd;
+    height:20px;
+    margin-top:10px;
 }
 
-.despesa{
-    color:red;
-    font-weight:bold;
+.bar{
+    height:20px;
+    background:green;
+    width:0%;
 }
 </style>
 </head>
@@ -46,34 +61,53 @@ th, td{
 
 <h1>💰 Controle Financeiro</h1>
 
+<button onclick="toggleDark()">🌙 Modo Escuro</button>
+<button onclick="exportarCSV()">📥 Exportar CSV</button>
+
+<br><br>
+
+Meta: <input id="meta" type="number" placeholder="Ex: 5000">
+<button onclick="salvarMeta()">Salvar Meta</button>
+
+<div class="progress">
+<div class="bar" id="bar"></div>
+</div>
+
+<br>
+
 <input id="desc" placeholder="Descrição">
 
 <select id="categoria">
-    <option>Alimentação</option>
-    <option>Transporte</option>
-    <option>Lazer</option>
-    <option>Moradia</option>
-    <option>Saúde</option>
-    <option>Outros</option>
+<option>Alimentação</option>
+<option>Transporte</option>
+<option>Lazer</option>
+<option>Moradia</option>
+<option>Saúde</option>
+<option>Outros</option>
 </select>
 
 <select id="tipo">
-    <option value="receita">Receita</option>
-    <option value="despesa">Despesa</option>
+<option value="receita">Receita</option>
+<option value="despesa">Despesa</option>
 </select>
 
-<input id="valor" type="number" step="0.01" placeholder="Valor">
+<input id="valor" type="number" placeholder="Valor">
 
 <button onclick="add()">Adicionar</button>
 <button onclick="limpar()">Limpar Tudo</button>
 
 <br><br>
 
-<input id="busca" placeholder="Pesquisar lançamento..." onkeyup="render()">
+<input id="busca" placeholder="Pesquisar..." onkeyup="render()">
 
-<h2>Receitas: R$ <span id="receitas">0.00</span></h2>
-<h2>Despesas: R$ <span id="despesas">0.00</span></h2>
-<h2>Saldo: R$ <span id="saldo">0.00</span></h2>
+<h3>Filtro mês</h3>
+<input type="month" id="mes" onchange="render()">
+
+<h2>Receitas: R$ <span id="receitas">0</span></h2>
+<h2>Despesas: R$ <span id="despesas">0</span></h2>
+<h2>Saldo: R$ <span id="saldo">0</span></h2>
+
+<canvas id="grafico"></canvas>
 
 <table>
 <thead>
@@ -86,57 +120,26 @@ th, td{
 <th>Ação</th>
 </tr>
 </thead>
-
 <tbody id="lista"></tbody>
 </table>
 
 <script>
+
 let dados = JSON.parse(localStorage.getItem("financeiro")) || [];
+let meta = parseFloat(localStorage.getItem("meta")) || 0;
 
 function salvar(){
     localStorage.setItem("financeiro", JSON.stringify(dados));
 }
 
-function render(){
+function salvarMeta(){
+    meta = parseFloat(document.getElementById("meta").value);
+    localStorage.setItem("meta", meta);
+    render();
+}
 
-    const busca = document.getElementById("busca").value.toLowerCase();
-    const lista = document.getElementById("lista");
-
-    lista.innerHTML = "";
-
-    let receitas = 0;
-    let despesas = 0;
-
-    dados.forEach((item,index)=>{
-
-        if(!item.desc.toLowerCase().includes(busca)){
-            return;
-        }
-
-        if(item.tipo === "receita"){
-            receitas += item.valor;
-        }else{
-            despesas += item.valor;
-        }
-
-        lista.innerHTML += `
-        <tr>
-            <td>${item.data}</td>
-            <td>${item.desc}</td>
-            <td>${item.categoria}</td>
-            <td>${item.tipo}</td>
-            <td class="${item.tipo}">
-                R$ ${item.valor.toFixed(2)}
-            </td>
-            <td>
-                <button onclick="remover(${index})">❌</button>
-            </td>
-        </tr>`;
-    });
-
-    document.getElementById("receitas").innerText = receitas.toFixed(2);
-    document.getElementById("despesas").innerText = despesas.toFixed(2);
-    document.getElementById("saldo").innerText = (receitas - despesas).toFixed(2);
+function toggleDark(){
+    document.body.classList.toggle("dark");
 }
 
 function add(){
@@ -153,31 +156,114 @@ function add(){
         categoria,
         tipo,
         valor,
-        data: new Date().toLocaleDateString("pt-BR")
+        data: new Date().toISOString()
     });
 
     salvar();
     render();
-
-    document.getElementById("desc").value = "";
-    document.getElementById("valor").value = "";
 }
 
-function remover(index){
-    dados.splice(index,1);
+function remover(i){
+    dados.splice(i,1);
     salvar();
     render();
 }
 
 function limpar(){
-    if(confirm("Deseja apagar todos os lançamentos?")){
+    if(confirm("Apagar tudo?")){
         dados = [];
         salvar();
         render();
     }
 }
 
+function exportarCSV(){
+
+    let csv = "Data,Descricao,Categoria,Tipo,Valor\n";
+
+    dados.forEach(d=>{
+        csv += `${d.data},${d.desc},${d.categoria},${d.tipo},${d.valor}\n`;
+    });
+
+    const blob = new Blob([csv], {type:"text/csv"});
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "financeiro.csv";
+    a.click();
+}
+
+let chart;
+
+function render(){
+
+    const busca = document.getElementById("busca").value.toLowerCase();
+    const mes = document.getElementById("mes").value;
+
+    let receitas = 0;
+    let despesas = 0;
+
+    let categorias = {};
+
+    const lista = document.getElementById("lista");
+    lista.innerHTML = "";
+
+    dados.forEach((d,i)=>{
+
+        const data = new Date(d.data);
+
+        if(mes){
+            const m = data.toISOString().slice(0,7);
+            if(m !== mes) return;
+        }
+
+        if(!d.desc.toLowerCase().includes(busca)) return;
+
+        if(d.tipo === "receita") receitas += d.valor;
+        else despesas += d.valor;
+
+        categorias[d.categoria] = (categorias[d.categoria] || 0) + d.valor;
+
+        lista.innerHTML += `
+        <tr>
+        <td>${data.toLocaleDateString()}</td>
+        <td>${d.desc}</td>
+        <td>${d.categoria}</td>
+        <td>${d.tipo}</td>
+        <td>${d.valor.toFixed(2)}</td>
+        <td><button onclick="remover(${i})">❌</button></td>
+        </tr>`;
+    });
+
+    document.getElementById("receitas").innerText = receitas.toFixed(2);
+    document.getElementById("despesas").innerText = despesas.toFixed(2);
+    document.getElementById("saldo").innerText = (receitas-despesas).toFixed(2);
+
+    // meta
+    if(meta > 0){
+        let pct = ((receitas-despesas)/meta)*100;
+        document.getElementById("bar").style.width = pct + "%";
+    }
+
+    // gráfico
+    const ctx = document.getElementById("grafico");
+
+    if(chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+        type:"pie",
+        data:{
+            labels:Object.keys(categorias),
+            datasets:[{
+                data:Object.values(categorias)
+            }]
+        }
+    });
+}
+
 render();
+
 </script>
 
 </body>
