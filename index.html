@@ -62,12 +62,12 @@ th,td{
 <h1>💰 Controle Financeiro</h1>
 
 <button onclick="toggleDark()">🌙 Modo Escuro</button>
-<button onclick="exportarCSV()">📥 Exportar CSV</button>
+<button onclick="exportCSV()">📥 Exportar CSV</button>
 
 <br><br>
 
 Meta: <input id="meta" type="number" placeholder="Ex: 5000">
-<button onclick="salvarMeta()">Salvar Meta</button>
+<button onclick="setMeta()">Salvar Meta</button>
 
 <div class="progress">
 <div class="bar" id="bar"></div>
@@ -94,20 +94,19 @@ Meta: <input id="meta" type="number" placeholder="Ex: 5000">
 <input id="valor" type="number" placeholder="Valor">
 
 <button onclick="add()">Adicionar</button>
-<button onclick="limpar()">Limpar Tudo</button>
+<button onclick="clearAll()">Limpar Tudo</button>
 
 <br><br>
 
-<input id="busca" placeholder="Pesquisar..." onkeyup="render()">
+<input id="search" placeholder="Pesquisar..." onkeyup="render()">
 
-<h3>Filtro mês</h3>
-<input type="month" id="mes" onchange="render()">
+<input type="month" id="month" onchange="render()">
 
 <h2>Receitas: R$ <span id="receitas">0</span></h2>
 <h2>Despesas: R$ <span id="despesas">0</span></h2>
 <h2>Saldo: R$ <span id="saldo">0</span></h2>
 
-<canvas id="grafico"></canvas>
+<canvas id="chart"></canvas>
 
 <table>
 <thead>
@@ -125,14 +124,14 @@ Meta: <input id="meta" type="number" placeholder="Ex: 5000">
 
 <script>
 
-let dados = JSON.parse(localStorage.getItem("financeiro")) || [];
+let data = JSON.parse(localStorage.getItem("financeiro")) || [];
 let meta = parseFloat(localStorage.getItem("meta")) || 0;
 
-function salvar(){
-    localStorage.setItem("financeiro", JSON.stringify(dados));
+function save(){
+    localStorage.setItem("financeiro", JSON.stringify(data));
 }
 
-function salvarMeta(){
+function setMeta(){
     meta = parseFloat(document.getElementById("meta").value);
     localStorage.setItem("meta", meta);
     render();
@@ -145,44 +144,44 @@ function toggleDark(){
 function add(){
 
     const desc = document.getElementById("desc").value;
-    const categoria = document.getElementById("categoria").value;
-    const tipo = document.getElementById("tipo").value;
-    const valor = parseFloat(document.getElementById("valor").value);
+    const cat = document.getElementById("categoria").value;
+    const type = document.getElementById("tipo").value;
+    const value = parseFloat(document.getElementById("valor").value);
 
-    if(!desc || isNaN(valor)) return;
+    if(!desc || isNaN(value)) return;
 
-    dados.push({
+    data.push({
         desc,
-        categoria,
-        tipo,
-        valor,
-        data: new Date().toISOString()
+        cat,
+        type,
+        value,
+        date: new Date().toISOString()
     });
 
-    salvar();
+    save();
     render();
 }
 
-function remover(i){
-    dados.splice(i,1);
-    salvar();
+function remove(i){
+    data.splice(i,1);
+    save();
     render();
 }
 
-function limpar(){
+function clearAll(){
     if(confirm("Apagar tudo?")){
-        dados = [];
-        salvar();
+        data = [];
+        save();
         render();
     }
 }
 
-function exportarCSV(){
+function exportCSV(){
 
     let csv = "Data,Descricao,Categoria,Tipo,Valor\n";
 
-    dados.forEach(d=>{
-        csv += `${d.data},${d.desc},${d.categoria},${d.tipo},${d.valor}\n`;
+    data.forEach(d=>{
+        csv += `${d.date},${d.desc},${d.cat},${d.type},${d.value}\n`;
     });
 
     const blob = new Blob([csv], {type:"text/csv"});
@@ -198,65 +197,59 @@ let chart;
 
 function render(){
 
-    const busca = document.getElementById("busca").value.toLowerCase();
-    const mes = document.getElementById("mes").value;
+    const search = document.getElementById("search").value.toLowerCase();
+    const month = document.getElementById("month").value;
 
-    let receitas = 0;
-    let despesas = 0;
+    let income = 0;
+    let expense = 0;
+    let categories = {};
 
-    let categorias = {};
+    const list = document.getElementById("lista");
+    list.innerHTML = "";
 
-    const lista = document.getElementById("lista");
-    lista.innerHTML = "";
+    data.forEach((d,i)=>{
 
-    dados.forEach((d,i)=>{
+        const date = new Date(d.date);
+        const ym = d.date.slice(0,7);
 
-        const data = new Date(d.data);
+        if(month && ym !== month) return;
+        if(!d.desc.toLowerCase().includes(search)) return;
 
-        if(mes){
-            const m = data.toISOString().slice(0,7);
-            if(m !== mes) return;
-        }
+        if(d.type === "receita") income += d.value;
+        else expense += d.value;
 
-        if(!d.desc.toLowerCase().includes(busca)) return;
+        categories[d.cat] = (categories[d.cat] || 0) + d.value;
 
-        if(d.tipo === "receita") receitas += d.valor;
-        else despesas += d.valor;
-
-        categorias[d.categoria] = (categorias[d.categoria] || 0) + d.valor;
-
-        lista.innerHTML += `
+        list.innerHTML += `
         <tr>
-        <td>${data.toLocaleDateString()}</td>
-        <td>${d.desc}</td>
-        <td>${d.categoria}</td>
-        <td>${d.tipo}</td>
-        <td>${d.valor.toFixed(2)}</td>
-        <td><button onclick="remover(${i})">❌</button></td>
+            <td>${date.toLocaleDateString()}</td>
+            <td>${d.desc}</td>
+            <td>${d.cat}</td>
+            <td>${d.type}</td>
+            <td>${d.value.toFixed(2)}</td>
+            <td><button onclick="remove(${i})">❌</button></td>
         </tr>`;
     });
 
-    document.getElementById("receitas").innerText = receitas.toFixed(2);
-    document.getElementById("despesas").innerText = despesas.toFixed(2);
-    document.getElementById("saldo").innerText = (receitas-despesas).toFixed(2);
+    document.getElementById("receitas").innerText = income.toFixed(2);
+    document.getElementById("despesas").innerText = expense.toFixed(2);
+    document.getElementById("saldo").innerText = (income-expense).toFixed(2);
 
-    // meta
     if(meta > 0){
-        let pct = ((receitas-despesas)/meta)*100;
-        document.getElementById("bar").style.width = pct + "%";
+        let percent = ((income-expense)/meta)*100;
+        document.getElementById("bar").style.width = percent + "%";
     }
 
-    // gráfico
-    const ctx = document.getElementById("grafico");
+    const ctx = document.getElementById("chart");
 
     if(chart) chart.destroy();
 
-    chart = new Chart(ctx, {
+    chart = new Chart(ctx,{
         type:"pie",
         data:{
-            labels:Object.keys(categorias),
+            labels:Object.keys(categories),
             datasets:[{
-                data:Object.values(categorias)
+                data:Object.values(categories)
             }]
         }
     });
