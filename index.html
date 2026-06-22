@@ -3,86 +3,143 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Controle Financeiro</title>
+<title>Finance App</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body{
+    margin:0;
     font-family: Arial;
-    max-width: 1000px;
-    margin: 20px auto;
-    padding: 20px;
-    background: #fff;
-    color: #000;
-    transition: 0.3s;
+    background:#f4f4f8;
+    color:#111;
 }
 
-.dark{
-    background:#121212;
-    color:#fff;
+.header{
+    background:#820ad1;
+    color:white;
+    padding:20px;
+    border-radius:0 0 20px 20px;
 }
 
-input, select, button{
-    padding:8px;
-    margin:4px;
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-top:-30px;
+}
+
+.card{
+    background:white;
+    padding:15px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+}
+
+.card h3{
+    margin:0;
+    font-size:14px;
+    color:#666;
+}
+
+.card p{
+    font-size:20px;
+    margin:5px 0 0;
+    font-weight:bold;
+}
+
+input,select,button{
+    padding:10px;
+    margin:5px;
+    border-radius:8px;
+    border:1px solid #ddd;
+}
+
+button{
+    background:#820ad1;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+.table{
+    width:100%;
+    background:white;
+    margin-top:20px;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
 }
 
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:20px;
 }
 
 th,td{
-    border:1px solid #ccc;
-    padding:8px;
+    padding:10px;
+    border-bottom:1px solid #eee;
+    text-align:left;
 }
 
 .receita{color:green;font-weight:bold;}
 .despesa{color:red;font-weight:bold;}
 
-.progress{
-    width:100%;
-    background:#ddd;
-    height:20px;
-    margin-top:10px;
+.top-actions{
+    margin-top:15px;
 }
 
-.bar{
-    height:20px;
-    background:green;
-    width:0%;
+canvas{
+    margin-top:20px;
+    background:white;
+    border-radius:12px;
+    padding:10px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>💰 Controle Financeiro</h1>
-
-<button onclick="toggleDark()">🌙 Modo Escuro</button>
-<button onclick="exportCSV()">📥 Exportar CSV</button>
-
-<br><br>
-
-Meta: <input id="meta" type="number" placeholder="Ex: 5000">
-<button onclick="setMeta()">Salvar Meta</button>
-
-<div class="progress">
-<div class="bar" id="bar"></div>
+<div class="header">
+<h2>Olá 👋</h2>
+<h1>Seu financeiro</h1>
 </div>
 
-<br>
+<div class="container">
 
+<!-- CARDS -->
+<div class="cards">
+    <div class="card">
+        <h3>Receitas</h3>
+        <p id="receitas">0</p>
+    </div>
+    <div class="card">
+        <h3>Despesas</h3>
+        <p id="despesas">0</p>
+    </div>
+    <div class="card">
+        <h3>Saldo</h3>
+        <p id="saldo">0</p>
+    </div>
+</div>
+
+<!-- INPUTS -->
+<div class="top-actions">
 <input id="desc" placeholder="Descrição">
-
 <select id="categoria">
 <option>Alimentação</option>
 <option>Transporte</option>
 <option>Lazer</option>
-<option>Moradia</option>
-<option>Saúde</option>
 <option>Outros</option>
 </select>
 
@@ -92,22 +149,17 @@ Meta: <input id="meta" type="number" placeholder="Ex: 5000">
 </select>
 
 <input id="valor" type="number" placeholder="Valor">
-
 <button onclick="add()">Adicionar</button>
-<button onclick="clearAll()">Limpar Tudo</button>
+<button onclick="limpar()">Limpar</button>
+</div>
 
-<br><br>
+<input id="busca" placeholder="Pesquisar..." onkeyup="render()">
 
-<input id="search" placeholder="Pesquisar..." onkeyup="render()">
+<!-- GRAFICO -->
+<canvas id="grafico"></canvas>
 
-<input type="month" id="month" onchange="render()">
-
-<h2>Receitas: R$ <span id="receitas">0</span></h2>
-<h2>Despesas: R$ <span id="despesas">0</span></h2>
-<h2>Saldo: R$ <span id="saldo">0</span></h2>
-
-<canvas id="chart"></canvas>
-
+<!-- TABELA -->
+<div class="table">
 <table>
 <thead>
 <tr>
@@ -116,140 +168,106 @@ Meta: <input id="meta" type="number" placeholder="Ex: 5000">
 <th>Categoria</th>
 <th>Tipo</th>
 <th>Valor</th>
-<th>Ação</th>
+<th></th>
 </tr>
 </thead>
 <tbody id="lista"></tbody>
 </table>
+</div>
+
+</div>
 
 <script>
 
-let data = JSON.parse(localStorage.getItem("financeiro")) || [];
-let meta = parseFloat(localStorage.getItem("meta")) || 0;
+let dados = JSON.parse(localStorage.getItem("financeiro")) || [];
 
-function save(){
-    localStorage.setItem("financeiro", JSON.stringify(data));
-}
-
-function setMeta(){
-    meta = parseFloat(document.getElementById("meta").value);
-    localStorage.setItem("meta", meta);
-    render();
-}
-
-function toggleDark(){
-    document.body.classList.toggle("dark");
+function salvar(){
+    localStorage.setItem("financeiro", JSON.stringify(dados));
 }
 
 function add(){
 
     const desc = document.getElementById("desc").value;
     const cat = document.getElementById("categoria").value;
-    const type = document.getElementById("tipo").value;
-    const value = parseFloat(document.getElementById("valor").value);
+    const tipo = document.getElementById("tipo").value;
+    const valor = parseFloat(document.getElementById("valor").value);
 
-    if(!desc || isNaN(value)) return;
+    if(!desc || isNaN(valor)) return;
 
-    data.push({
+    dados.push({
         desc,
         cat,
-        type,
-        value,
-        date: new Date().toISOString()
+        tipo,
+        valor,
+        data:new Date().toLocaleDateString()
     });
 
-    save();
+    salvar();
     render();
 }
 
-function remove(i){
-    data.splice(i,1);
-    save();
-    render();
-}
-
-function clearAll(){
+function limpar(){
     if(confirm("Apagar tudo?")){
-        data = [];
-        save();
+        dados=[];
+        salvar();
         render();
     }
 }
 
-function exportCSV(){
-
-    let csv = "Data,Descricao,Categoria,Tipo,Valor\n";
-
-    data.forEach(d=>{
-        csv += `${d.date},${d.desc},${d.cat},${d.type},${d.value}\n`;
-    });
-
-    const blob = new Blob([csv], {type:"text/csv"});
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "financeiro.csv";
-    a.click();
+function remover(i){
+    dados.splice(i,1);
+    salvar();
+    render();
 }
 
 let chart;
 
 function render(){
 
-    const search = document.getElementById("search").value.toLowerCase();
-    const month = document.getElementById("month").value;
+    const busca = document.getElementById("busca").value.toLowerCase();
 
-    let income = 0;
-    let expense = 0;
-    let categories = {};
+    let receitas=0;
+    let despesas=0;
+    let catMap={};
 
-    const list = document.getElementById("lista");
-    list.innerHTML = "";
+    const lista=document.getElementById("lista");
+    lista.innerHTML="";
 
-    data.forEach((d,i)=>{
+    dados.forEach((d,i)=>{
 
-        const date = new Date(d.date);
-        const ym = d.date.slice(0,7);
+        if(!d.desc.toLowerCase().includes(busca)) return;
 
-        if(month && ym !== month) return;
-        if(!d.desc.toLowerCase().includes(search)) return;
+        if(d.tipo==="receita") receitas+=d.valor;
+        else despesas+=d.valor;
 
-        if(d.type === "receita") income += d.value;
-        else expense += d.value;
+        catMap[d.cat]=(catMap[d.cat]||0)+d.valor;
 
-        categories[d.cat] = (categories[d.cat] || 0) + d.value;
-
-        list.innerHTML += `
+        lista.innerHTML+=`
         <tr>
-            <td>${date.toLocaleDateString()}</td>
+            <td>${d.data}</td>
             <td>${d.desc}</td>
             <td>${d.cat}</td>
-            <td>${d.type}</td>
-            <td>${d.value.toFixed(2)}</td>
-            <td><button onclick="remove(${i})">❌</button></td>
+            <td class="${d.tipo}">${d.tipo}</td>
+            <td>R$ ${d.valor.toFixed(2)}</td>
+            <td><button onclick="remover(${i})">X</button></td>
         </tr>`;
     });
 
-    document.getElementById("receitas").innerText = income.toFixed(2);
-    document.getElementById("despesas").innerText = expense.toFixed(2);
-    document.getElementById("saldo").innerText = (income-expense).toFixed(2);
+    document.getElementById("receitas").innerText=receitas.toFixed(2);
+    document.getElementById("despesas").innerText=despesas.toFixed(2);
+    document.getElementById("saldo").innerText=(receitas-despesas).toFixed(2);
 
-    if(meta > 0){
-        let percent = ((income-expense)/meta)*100;
-        document.getElementById("bar").style.width = percent + "%";
-    }
-
-    const ctx = document.getElementById("chart");
+    const ctx=document.getElementById("grafico");
 
     if(chart) chart.destroy();
 
-    chart = new Chart(ctx,{
-        type:"pie",
+    chart=new Chart(ctx,{
+        type:"doughnut",
         data:{
-            labels:Object.keys(categories),
+            labels:Object.keys(catMap),
             datasets:[{
-                data:Object.values(categories)
+                data:Object.values(catMap),
+                backgroundColor:["#820ad1","#ff6384","#36a2eb","#ffcd56"]
             }]
         }
     });
