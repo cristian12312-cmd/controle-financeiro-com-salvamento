@@ -11,23 +11,25 @@
 body{
     margin:0;
     font-family: Arial;
-    background:#f4f4f8;
-    color:#111;
+    background:#f2f2f7;
 }
 
+/* HEADER */
 .header{
     background:#820ad1;
     color:white;
-    padding:20px;
-    border-radius:0 0 20px 20px;
+    padding:25px;
+    border-radius:0 0 25px 25px;
 }
 
+/* CONTAINER */
 .container{
     max-width:900px;
     margin:auto;
     padding:20px;
 }
 
+/* CARDS */
 .cards{
     display:grid;
     grid-template-columns:repeat(3,1fr);
@@ -38,20 +40,61 @@ body{
 .card{
     background:white;
     padding:15px;
-    border-radius:12px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+    border-radius:14px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.08);
+    transition:0.2s;
+}
+
+.card:hover{
+    transform:translateY(-3px);
 }
 
 .card h3{
     margin:0;
-    font-size:14px;
+    font-size:13px;
     color:#666;
 }
 
 .card p{
-    font-size:20px;
-    margin:5px 0 0;
+    font-size:22px;
     font-weight:bold;
+    margin:5px 0 0;
+}
+
+/* BOTÃO FLUTUANTE */
+.fab{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    background:#820ad1;
+    color:white;
+    font-size:30px;
+    border:none;
+    cursor:pointer;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* MODAL */
+.modal{
+    display:none;
+    position:fixed;
+    top:0;left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    justify-content:center;
+    align-items:center;
+}
+
+.modal-content{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    width:90%;
+    max-width:400px;
 }
 
 input,select,button{
@@ -59,6 +102,7 @@ input,select,button{
     margin:5px;
     border-radius:8px;
     border:1px solid #ddd;
+    width:100%;
 }
 
 button{
@@ -68,17 +112,13 @@ button{
     cursor:pointer;
 }
 
-button:hover{
-    opacity:0.9;
-}
-
+/* LISTA */
 .table{
-    width:100%;
-    background:white;
     margin-top:20px;
-    border-radius:12px;
+    background:white;
+    border-radius:15px;
     overflow:hidden;
-    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+    box-shadow:0 8px 20px rgba(0,0,0,0.08);
 }
 
 table{
@@ -89,21 +129,19 @@ table{
 th,td{
     padding:10px;
     border-bottom:1px solid #eee;
-    text-align:left;
 }
 
 .receita{color:green;font-weight:bold;}
 .despesa{color:red;font-weight:bold;}
 
-.top-actions{
-    margin-top:15px;
+/* ANIMAÇÃO */
+.fade{
+    animation:fade 0.3s ease;
 }
 
-canvas{
-    margin-top:20px;
-    background:white;
-    border-radius:12px;
-    padding:10px;
+@keyframes fade{
+    from{opacity:0;transform:translateY(10px);}
+    to{opacity:1;transform:translateY(0);}
 }
 </style>
 </head>
@@ -112,30 +150,59 @@ canvas{
 
 <div class="header">
 <h2>Olá 👋</h2>
-<h1>Seu financeiro</h1>
+<h1>Seu Financeiro</h1>
 </div>
 
 <div class="container">
 
 <!-- CARDS -->
 <div class="cards">
-    <div class="card">
-        <h3>Receitas</h3>
-        <p id="receitas">0</p>
-    </div>
-    <div class="card">
-        <h3>Despesas</h3>
-        <p id="despesas">0</p>
-    </div>
-    <div class="card">
-        <h3>Saldo</h3>
-        <p id="saldo">0</p>
-    </div>
+<div class="card">
+<h3>Receitas</h3>
+<p id="receitas">0</p>
 </div>
 
-<!-- INPUTS -->
-<div class="top-actions">
+<div class="card">
+<h3>Despesas</h3>
+<p id="despesas">0</p>
+</div>
+
+<div class="card">
+<h3>Saldo</h3>
+<p id="saldo">0</p>
+</div>
+</div>
+
+<canvas id="grafico"></canvas>
+
+<div class="table">
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Descrição</th>
+<th>Categoria</th>
+<th>Tipo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody id="lista"></tbody>
+</table>
+</div>
+
+</div>
+
+<!-- BOTÃO FLUTUANTE -->
+<button class="fab" onclick="openModal()">+</button>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+<div class="modal-content">
+
+<h3>Adicionar lançamento</h3>
+
 <input id="desc" placeholder="Descrição">
+
 <select id="categoria">
 <option>Alimentação</option>
 <option>Transporte</option>
@@ -149,40 +216,27 @@ canvas{
 </select>
 
 <input id="valor" type="number" placeholder="Valor">
-<button onclick="add()">Adicionar</button>
-<button onclick="limpar()">Limpar</button>
+
+<button onclick="add()">Salvar</button>
+<button onclick="closeModal()">Fechar</button>
+
 </div>
-
-<input id="busca" placeholder="Pesquisar..." onkeyup="render()">
-
-<!-- GRAFICO -->
-<canvas id="grafico"></canvas>
-
-<!-- TABELA -->
-<div class="table">
-<table>
-<thead>
-<tr>
-<th>Data</th>
-<th>Descrição</th>
-<th>Categoria</th>
-<th>Tipo</th>
-<th>Valor</th>
-<th></th>
-</tr>
-</thead>
-<tbody id="lista"></tbody>
-</table>
-</div>
-
 </div>
 
 <script>
 
 let dados = JSON.parse(localStorage.getItem("financeiro")) || [];
 
-function salvar(){
+function save(){
     localStorage.setItem("financeiro", JSON.stringify(dados));
+}
+
+function openModal(){
+    document.getElementById("modal").style.display="flex";
+}
+
+function closeModal(){
+    document.getElementById("modal").style.display="none";
 }
 
 function add(){
@@ -202,29 +256,12 @@ function add(){
         data:new Date().toLocaleDateString()
     });
 
-    salvar();
+    save();
     render();
+    closeModal();
 }
-
-function limpar(){
-    if(confirm("Apagar tudo?")){
-        dados=[];
-        salvar();
-        render();
-    }
-}
-
-function remover(i){
-    dados.splice(i,1);
-    salvar();
-    render();
-}
-
-let chart;
 
 function render(){
-
-    const busca = document.getElementById("busca").value.toLowerCase();
 
     let receitas=0;
     let despesas=0;
@@ -233,9 +270,7 @@ function render(){
     const lista=document.getElementById("lista");
     lista.innerHTML="";
 
-    dados.forEach((d,i)=>{
-
-        if(!d.desc.toLowerCase().includes(busca)) return;
+    dados.forEach(d=>{
 
         if(d.tipo==="receita") receitas+=d.valor;
         else despesas+=d.valor;
@@ -243,13 +278,12 @@ function render(){
         catMap[d.cat]=(catMap[d.cat]||0)+d.valor;
 
         lista.innerHTML+=`
-        <tr>
+        <tr class="fade">
             <td>${d.data}</td>
             <td>${d.desc}</td>
             <td>${d.cat}</td>
             <td class="${d.tipo}">${d.tipo}</td>
             <td>R$ ${d.valor.toFixed(2)}</td>
-            <td><button onclick="remover(${i})">X</button></td>
         </tr>`;
     });
 
@@ -259,9 +293,9 @@ function render(){
 
     const ctx=document.getElementById("grafico");
 
-    if(chart) chart.destroy();
+    if(window.chart) window.chart.destroy();
 
-    chart=new Chart(ctx,{
+    window.chart=new Chart(ctx,{
         type:"doughnut",
         data:{
             labels:Object.keys(catMap),
