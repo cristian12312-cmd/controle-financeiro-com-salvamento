@@ -9,7 +9,7 @@
 body{
     margin:0;
     font-family:Arial;
-    background:#0f172a;
+    background: radial-gradient(circle at top, #1e293b, #0f172a);
     color:white;
 }
 
@@ -21,12 +21,15 @@ body{
 
 .hero{
     text-align:center;
-    padding:60px 20px;
+    padding:80px 20px;
 }
 
 .hero h1{
-    font-size:40px;
+    font-size:50px;
     margin:0;
+    background: linear-gradient(90deg,#60a5fa,#22c55e);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
 }
 
 .hero p{
@@ -40,8 +43,14 @@ body{
     padding:12px 20px;
     background:#1e88e5;
     color:white;
-    border-radius:10px;
+    border-radius:12px;
     text-decoration:none;
+    transition:0.3s;
+}
+
+.btn:hover{
+    transform:scale(1.05);
+    background:#2563eb;
 }
 
 .section{
@@ -55,11 +64,12 @@ body{
 }
 
 .card{
-    background:#111827;
+    background:rgba(255,255,255,0.05);
     padding:20px;
     border-radius:15px;
     margin-bottom:15px;
-    border:1px solid #1f2937;
+    border:1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
 }
 
 .card h3{
@@ -80,6 +90,11 @@ body{
     font-size:12px;
 }
 
+.highlight{
+    border:1px solid #1e88e5;
+    box-shadow:0 0 20px rgba(30,136,229,0.2);
+}
+
 .footer{
     text-align:center;
     margin-top:60px;
@@ -96,7 +111,6 @@ body{
 <div class="hero">
 <h1>Seu Nome</h1>
 <p>Desenvolvedor Front-end | JavaScript | UI Moderna</p>
-
 <a class="btn" href="#projetos">Ver Projetos</a>
 </div>
 
@@ -107,8 +121,7 @@ body{
 <div class="card">
 <p>
 Sou desenvolvedor front-end focado em criar aplicações web modernas,
-responsivas e com boa experiência de usuário. Tenho projetos usando HTML,
-CSS e JavaScript.
+responsivas e com experiência de usuário premium. Construo projetos como dashboards e sistemas reais.
 </p>
 </div>
 </div>
@@ -117,9 +130,9 @@ CSS e JavaScript.
 <div class="section" id="projetos">
 <div class="title">Projetos</div>
 
-<div class="card">
-<h3>💰 Finance App Pro</h3>
-<p>Aplicação de controle financeiro com gráficos, categorias e armazenamento local.</p>
+<div class="card highlight">
+<h3>💰 Finance App Pro (PROJETO PRINCIPAL)</h3>
+<p>Aplicação de controle financeiro estilo fintech com gráficos, categorias, dark mode e armazenamento local.</p>
 
 <div class="tags">
 <span>HTML</span>
@@ -130,13 +143,13 @@ CSS e JavaScript.
 
 <br><br>
 
+<a class="btn" href="#">Ver Projeto</a>
 <a class="btn" href="https://github.com/" target="_blank">GitHub</a>
-<a class="btn" href="#" target="_blank">Ver Projeto</a>
 </div>
 
 <div class="card">
 <h3>📌 Outros Projetos</h3>
-<p>Mais projetos serão adicionados aqui conforme evolução.</p>
+<p>Mais projetos serão adicionados conforme evolução.</p>
 </div>
 
 </div>
@@ -165,7 +178,7 @@ CSS e JavaScript.
 </div>
 
 <div class="footer">
-Feito com 💙 usando HTML + CSS + JS
+Feito com 💙 por você
 </div>
 
 </div>
