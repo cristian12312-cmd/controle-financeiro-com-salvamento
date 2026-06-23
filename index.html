@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Finance Feed</title>
+<title>Finance Feed Pro Max</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -15,14 +15,12 @@ body{
     color:white;
 }
 
-/* HEADER */
 .header{
     background:#1e88e5;
     padding:20px;
     text-align:center;
 }
 
-/* CARDS */
 .top{
     display:grid;
     grid-template-columns:1fr 1fr 1fr;
@@ -37,10 +35,6 @@ body{
     text-align:center;
 }
 
-.box h4{margin:0;font-size:12px;color:#94a3b8;}
-.box h2{margin:5px 0 0;}
-
-/* INPUT FLOAT */
 .input{
     padding:10px;
 }
@@ -51,6 +45,7 @@ input,select{
     margin:5px 0;
     border-radius:8px;
     border:none;
+    outline:none;
 }
 
 button{
@@ -63,7 +58,6 @@ button{
     cursor:pointer;
 }
 
-/* FEED (NOVA IDEIA REAL) */
 .feed{
     padding:10px;
 }
@@ -75,12 +69,6 @@ button{
     margin-bottom:10px;
     display:flex;
     justify-content:space-between;
-    align-items:center;
-}
-
-.left{
-    display:flex;
-    flex-direction:column;
 }
 
 .cat{
@@ -88,16 +76,15 @@ button{
     color:#94a3b8;
 }
 
-.valor{
-    font-weight:bold;
-}
+.receita{color:#22c55e;font-weight:bold;}
+.despesa{color:#ef4444;font-weight:bold;}
 
-.receita{color:#22c55e;}
-.despesa{color:#ef4444;}
-
-.small{
-    font-size:12px;
-    color:#64748b;
+.del{
+    background:#ef4444;
+    padding:5px 10px;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
 }
 </style>
 </head>
@@ -105,18 +92,16 @@ button{
 <body>
 
 <div class="header">
-<h2>💙 Finance Feed</h2>
-<p class="small">visual moderno estilo app real</p>
+<h2>💙 Finance Feed Pro Max</h2>
 </div>
 
 <div class="top">
-<div class="box"><h4>SALDO</h4><h2 id="saldo">0</h2></div>
-<div class="box"><h4>ENTRADA</h4><h2 id="r">0</h2></div>
-<div class="box"><h4>SAÍDA</h4><h2 id="d">0</h2></div>
+<div class="box"><h4>SALDO</h4><h2 id="saldo">R$ 0,00</h2></div>
+<div class="box"><h4>ENTRADA</h4><h2 id="r">R$ 0,00</h2></div>
+<div class="box"><h4>SAÍDA</h4><h2 id="d">R$ 0,00</h2></div>
 </div>
 
 <div class="input">
-
 <input id="desc" placeholder="Descrição">
 
 <select id="cat">
@@ -134,7 +119,6 @@ button{
 <input id="valor" type="number" placeholder="Valor">
 
 <button onclick="add()">Adicionar</button>
-
 </div>
 
 <canvas id="chart"></canvas>
@@ -143,7 +127,23 @@ button{
 
 <script>
 
+const desc = document.getElementById("desc");
+const cat = document.getElementById("cat");
+const tipo = document.getElementById("tipo");
+const valor = document.getElementById("valor");
+const feed = document.getElementById("feed");
+const chartCanvas = document.getElementById("chart");
+
 let dados = JSON.parse(localStorage.getItem("feed_finance")) || [];
+let chart;
+
+const format = (v) =>
+    v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+const colors = [
+    "#1e88e5", "#22c55e", "#ef4444", "#facc15",
+    "#a855f7", "#06b6d4", "#f97316", "#10b981"
+];
 
 function save(){
     localStorage.setItem("feed_finance", JSON.stringify(dados));
@@ -151,80 +151,101 @@ function save(){
 
 function add(){
 
-    if(!desc.value || !valor.value) return;
+    if(!desc.value || !valor.value){
+        alert("Preencha todos os campos");
+        return;
+    }
 
     dados.unshift({
-        desc:desc.value,
-        cat:cat.value,
-        tipo:tipo.value,
-        valor:Number(valor.value),
-        data:new Date().toLocaleDateString()
+        id: Date.now(),
+        desc: desc.value,
+        cat: cat.value,
+        tipo: tipo.value,
+        valor: Number(valor.value),
+        data: new Date().toLocaleDateString()
     });
 
     save();
     render();
 
-    desc.value="";
-    valor.value="";
+    desc.value = "";
+    valor.value = "";
+    cat.value = "Alimentação";
+    tipo.value = "receita";
 }
 
-function remove(i){
-    dados.splice(i,1);
+function remove(id){
+    if(!confirm("Deseja remover este item?")) return;
+    dados = dados.filter(i => i.id !== id);
     save();
     render();
 }
 
-let chart;
-
 function render(){
 
-    let r=0,d=0;
-    let map={};
+    let r = 0;
+    let d = 0;
+    let map = {};
 
-    feed.innerHTML="";
+    if(dados.length === 0){
+        feed.innerHTML = "<p style='text-align:center;color:#94a3b8'>Nenhum lançamento ainda</p>";
+        document.getElementById("r").innerText = "R$ 0,00";
+        document.getElementById("d").innerText = "R$ 0,00";
+        document.getElementById("saldo").innerText = "R$ 0,00";
+        if(chart) chart.destroy();
+        return;
+    }
 
-    dados.forEach((x,i)=>{
+    let html = "";
 
-        if(x.tipo==="receita") r+=x.valor;
-        else d+=x.valor;
+    dados.forEach(x => {
 
-        map[x.cat]=(map[x.cat]||0)+x.valor;
+        const val = Number(x.valor);
 
-        feed.innerHTML+=`
+        if(x.tipo === "receita") r += val;
+        else d += val;
+
+        map[x.cat] = (map[x.cat] || 0) + val;
+
+        html += `
         <div class="item">
-            <div class="left">
-                <strong>${x.desc}</strong>
-                <span class="cat">${x.cat} • ${x.data}</span>
+            <div>
+                <strong>${x.desc}</strong><br>
+                <span class="cat">${x.cat} • ${x.data}</span><br>
+                <button class="del" onclick="remove(${x.id})">remover</button>
             </div>
 
-            <div style="text-align:right">
-                <div class="${x.tipo}">
-                    R$ ${x.valor.toFixed(2)}
-                </div>
-                <button onclick="remove(${i})">x</button>
+            <div class="${x.tipo}">
+                ${x.tipo === "receita" ? "+" : "-"} ${format(val)}
             </div>
         </div>`;
     });
 
-    r.innerText=r.toFixed(2);
-    d.innerText=d.toFixed(2);
-    saldo.innerText=(r-d).toFixed(2);
+    feed.innerHTML = html;
+
+    const saldo = r - d;
+
+    document.getElementById("r").innerText = format(r);
+    document.getElementById("d").innerText = format(d);
+    document.getElementById("saldo").innerText = format(saldo);
 
     if(chart) chart.destroy();
 
-    chart=new Chart(chartCanvas,{
-        type:"doughnut",
-        data:{
-            labels:Object.keys(map),
-            datasets:[{
-                data:Object.values(map),
-                backgroundColor:["#1e88e5","#22c55e","#ef4444","#facc15"]
+    const entries = Object.entries(map).sort((a,b)=>b[1]-a[1]);
+    const labels = entries.map(e => e[0]);
+    const values = entries.map(e => e[1]);
+
+    chart = new Chart(chartCanvas, {
+        type: "doughnut",
+        data: {
+            labels,
+            datasets: [{
+                data: values,
+                backgroundColor: labels.map((_, i) => colors[i % colors.length])
             }]
         }
     });
 }
-
-const chartCanvas=document.getElementById("chart");
 
 render();
 
