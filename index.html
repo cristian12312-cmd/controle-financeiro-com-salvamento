@@ -3,25 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Finance Cloud Pro Max 2.0</title>
+<title>Finance Cloud Simple</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <style>
 body{
     margin:0;
     font-family:Arial;
-    background:linear-gradient(135deg,#0b1220,#111827);
+    background:#0b1220;
     color:white;
 }
 
-/* LOGIN */
-.login{
+/* LOGIN SIMPLES */
+#login{
     height:100vh;
     display:flex;
     justify-content:center;
@@ -29,18 +24,17 @@ body{
 }
 
 .card{
-    background:rgba(255,255,255,0.05);
-    backdrop-filter:blur(10px);
+    background:#111827;
     padding:20px;
-    border-radius:16px;
-    width:320px;
+    border-radius:12px;
+    width:300px;
 }
 
-input,select,button{
+input,button,select{
     width:100%;
     padding:10px;
     margin-top:8px;
-    border-radius:10px;
+    border-radius:8px;
     border:none;
 }
 
@@ -50,17 +44,18 @@ button{
     cursor:pointer;
 }
 
-/* HEADER */
-header{
+/* APP */
+#app{display:none;}
+
+.header{
     background:#1e88e5;
     padding:15px;
     text-align:center;
 }
 
-/* DASHBOARD */
-.dashboard{
+.top{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
+    grid-template-columns:1fr 1fr 1fr;
     gap:10px;
     padding:10px;
 }
@@ -72,12 +67,6 @@ header{
     text-align:center;
 }
 
-/* INPUTS */
-.inputs{
-    padding:10px;
-}
-
-/* FEED */
 .feed{
     padding:10px;
 }
@@ -91,48 +80,39 @@ header{
     justify-content:space-between;
 }
 
-.receita{color:#22c55e;font-weight:bold;}
-.despesa{color:#ef4444;font-weight:bold;}
-
-.small{
-    font-size:12px;
-    color:#94a3b8;
-}
+.receita{color:#22c55e;}
+.despesa{color:#ef4444;}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div class="login" id="loginBox">
+<!-- LOGIN SIMPLES -->
+<div id="login">
 <div class="card">
-<h3>💙 Login Finance Cloud</h3>
+<h3>💙 Entrar no sistema</h3>
 
-<input id="email" placeholder="Email">
-<input id="pass" type="password" placeholder="Senha">
+<input id="name" placeholder="Seu nome">
 
-<button onclick="login()">Entrar</button>
-<button onclick="register()">Criar conta</button>
+<button onclick="enter()">Entrar</button>
 </div>
 </div>
 
 <!-- APP -->
-<div id="app" style="display:none">
+<div id="app">
 
-<header>
-<h2>💙 Finance Cloud Pro Max</h2>
-<button onclick="logout()">Sair</button>
-</header>
-
-<!-- DASH -->
-<div class="dashboard">
-<div class="box"><h4>Saldo</h4><h2 id="saldo">R$ 0,00</h2></div>
-<div class="box"><h4>Receitas</h4><h2 id="receitas">R$ 0,00</h2></div>
-<div class="box"><h4>Despesas</h4><h2 id="despesas">R$ 0,00</h2></div>
+<div class="header">
+<h2 id="welcome"></h2>
 </div>
 
-<!-- INPUTS -->
-<div class="inputs">
+<div class="top">
+<div class="box"><h4>Saldo</h4><h2 id="saldo">0</h2></div>
+<div class="box"><h4>Receitas</h4><h2 id="r">0</h2></div>
+<div class="box"><h4>Despesas</h4><h2 id="d">0</h2></div>
+</div>
+
+<div style="padding:10px">
+
 <input id="desc" placeholder="Descrição">
 
 <select id="cat">
@@ -150,6 +130,7 @@ header{
 <input id="valor" type="number" placeholder="Valor">
 
 <button onclick="add()">Adicionar</button>
+
 </div>
 
 <canvas id="chart"></canvas>
@@ -160,163 +141,108 @@ header{
 
 <script>
 
-/* FIREBASE CONFIG */
-const firebaseConfig = {
-  apiKey: "SUA_API",
-  authDomain: "SEU_AUTH",
-  projectId: "SEU_ID"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-/* ELEMENTOS */
-const email = document.getElementById("email");
-const pass = document.getElementById("pass");
-const desc = document.getElementById("desc");
-const cat = document.getElementById("cat");
-const tipo = document.getElementById("tipo");
-const valor = document.getElementById("valor");
-
-const feed = document.getElementById("feed");
-const saldoEl = document.getElementById("saldo");
-const receitasEl = document.getElementById("receitas");
-const despesasEl = document.getElementById("despesas");
-
-const chartCanvas = document.getElementById("chart");
-
-let user = null;
-let dados = [];
+let dados = JSON.parse(localStorage.getItem("finance")) || [];
 let chart;
+let userName = "";
 
-/* LOGIN */
-function login(){
-auth.signInWithEmailAndPassword(email.value, pass.value)
-.catch(e=>alert(e.message));
+function enter(){
+    const name = document.getElementById("name").value;
+
+    if(!name){
+        alert("Digite seu nome");
+        return;
+    }
+
+    userName = name;
+
+    document.getElementById("login").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    document.getElementById("welcome").innerText = "Bem-vindo, " + name;
+
+    render();
 }
 
-function register(){
-auth.createUserWithEmailAndPassword(email.value, pass.value)
-.catch(e=>alert(e.message));
+function save(){
+    localStorage.setItem("finance", JSON.stringify(dados));
 }
 
-function logout(){
-auth.signOut();
+function add(){
+
+    const desc = document.getElementById("desc");
+    const cat = document.getElementById("cat");
+    const tipo = document.getElementById("tipo");
+    const valor = document.getElementById("valor");
+
+    if(!desc.value || !valor.value) return;
+
+    dados.unshift({
+        id: Date.now(),
+        desc: desc.value,
+        cat: cat.value,
+        tipo: tipo.value,
+        valor: Number(valor.value),
+        date: new Date().toLocaleDateString()
+    });
+
+    save();
+    render();
+
+    desc.value="";
+    valor.value="";
 }
 
-/* AUTH */
-auth.onAuthStateChanged(async u=>{
-if(u){
-user=u;
-loginBox.style.display="none";
-app.style.display="block";
-load();
-}else{
-loginBox.style.display="flex";
-app.style.display="none";
-}
-});
-
-/* ADD */
-async function add(){
-
-if(!desc.value || !valor.value) return;
-
-await db.collection("users")
-.doc(user.uid)
-.collection("finance")
-.add({
-desc:desc.value,
-cat:cat.value,
-tipo:tipo.value,
-valor:Number(valor.value),
-date:new Date().toISOString()
-});
-
-desc.value="";
-valor.value="";
-
-load();
+function remove(id){
+    dados = dados.filter(i => i.id !== id);
+    save();
+    render();
 }
 
-/* LOAD */
-async function load(){
-
-const snap=await db.collection("users")
-.doc(user.uid)
-.collection("finance")
-.get();
-
-dados=snap.docs.map(d=>({id:d.id,...d.data()}));
-
-render();
-}
-
-/* DELETE */
-async function remove(id){
-
-await db.collection("users")
-.doc(user.uid)
-.collection("finance")
-.doc(id)
-.delete();
-
-load();
-}
-
-/* FORMAT */
-const format=v=>v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-
-/* RENDER */
 function render(){
 
-let r=0,d=0;
-let map={};
+    let r=0,d=0;
+    let map={};
 
-let html="";
+    let html="";
 
-dados.forEach(x=>{
+    dados.forEach(x=>{
 
-const v=x.valor;
+        if(x.tipo==="receita") r+=x.valor;
+        else d+=x.valor;
 
-if(x.tipo==="receita") r+=v;
-else d+=v;
+        map[x.cat]=(map[x.cat]||0)+x.valor;
 
-map[x.cat]=(map[x.cat]||0)+v;
+        html+=`
+        <div class="item">
+        <div>
+            <b>${x.desc}</b><br>
+            <small>${x.cat}</small><br>
+            <button onclick="remove(${x.id})">remover</button>
+        </div>
 
-html+=`
-<div class="item">
-<div>
-<b>${x.desc}</b><br>
-<span class="small">${x.cat}</span>
-<button onclick="remove('${x.id}')">🗑</button>
-</div>
-<div class="${x.tipo}">
-${x.tipo==="receita"?"+":"-"} ${format(v)}
-</div>
-</div>`;
-});
+        <div class="${x.tipo}">
+            ${x.tipo==="receita"?"+":"-"} ${x.valor.toFixed(2)}
+        </div>
+        </div>`;
+    });
 
-feed.innerHTML=html;
+    document.getElementById("feed").innerHTML = html;
 
-saldoEl.innerText=format(r-d);
-receitasEl.innerText=format(r);
-despesasEl.innerText=format(d);
+    document.getElementById("r").innerText = r.toFixed(2);
+    document.getElementById("d").innerText = d.toFixed(2);
+    document.getElementById("saldo").innerText = (r-d).toFixed(2);
 
-if(chart) chart.destroy();
+    if(chart) chart.destroy();
 
-chart=new Chart(chartCanvas,{
-type:"doughnut",
-data:{
-labels:Object.keys(map),
-datasets:[{
-data:Object.values(map),
-backgroundColor:["#1e88e5","#22c55e","#ef4444","#facc15"]
-}]
-}
-});
+    chart = new Chart(document.getElementById("chart"),{
+        type:"doughnut",
+        data:{
+            labels:Object.keys(map),
+            datasets:[{
+                data:Object.values(map)
+            }]
+        }
+    });
 }
 
 </script>
