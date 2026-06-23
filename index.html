@@ -3,270 +3,172 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Finance App Pro</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Portfólio</title>
 
 <style>
 body{
     margin:0;
-    font-family: Arial;
-    background:#f4f7fb;
-}
-
-.dark{background:#121212;color:white;}
-
-.header{
-    background:#1e88e5;
+    font-family:Arial;
+    background:#0f172a;
     color:white;
-    padding:25px;
-    border-radius:0 0 25px 25px;
 }
 
 .container{
     max-width:900px;
     margin:auto;
-    padding:20px;
+    padding:40px 20px;
 }
 
-.cards{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
-    margin-top:-30px;
+.hero{
+    text-align:center;
+    padding:60px 20px;
+}
+
+.hero h1{
+    font-size:40px;
+    margin:0;
+}
+
+.hero p{
+    color:#94a3b8;
+    margin-top:10px;
+}
+
+.btn{
+    display:inline-block;
+    margin-top:20px;
+    padding:12px 20px;
+    background:#1e88e5;
+    color:white;
+    border-radius:10px;
+    text-decoration:none;
+}
+
+.section{
+    margin-top:60px;
+}
+
+.title{
+    font-size:22px;
+    margin-bottom:20px;
+    color:#60a5fa;
 }
 
 .card{
-    background:white;
-    padding:15px;
-    border-radius:14px;
-    box-shadow:0 8px 20px rgba(0,0,0,0.08);
-}
-
-.dark .card{background:#1e1e1e;}
-
-.card h3{margin:0;font-size:13px;color:#666;}
-.card p{font-size:22px;font-weight:bold;}
-
-.fab{
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    width:60px;
-    height:60px;
-    border-radius:50%;
-    background:#1e88e5;
-    color:white;
-    font-size:30px;
-    border:none;
-    cursor:pointer;
-}
-
-.modal{
-    display:none;
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.5);
-    justify-content:center;
-    align-items:center;
-}
-
-.modal-content{
-    background:white;
+    background:#111827;
     padding:20px;
     border-radius:15px;
-    width:90%;
-    max-width:400px;
+    margin-bottom:15px;
+    border:1px solid #1f2937;
 }
 
-.dark .modal-content{background:#1e1e1e;}
+.card h3{
+    margin:0;
+}
 
-input,select,button{
-    padding:10px;
-    margin:5px;
-    width:100%;
+.card p{
+    color:#94a3b8;
+}
+
+.tags span{
+    display:inline-block;
+    padding:5px 10px;
+    background:#1e293b;
     border-radius:8px;
-    border:1px solid #ddd;
+    margin-right:5px;
+    margin-top:10px;
+    font-size:12px;
 }
 
-button{
-    background:#1e88e5;
-    color:white;
-    border:none;
-    cursor:pointer;
+.footer{
+    text-align:center;
+    margin-top:60px;
+    color:#64748b;
 }
-
-.table{
-    margin-top:20px;
-    background:white;
-    border-radius:15px;
-    overflow:hidden;
-}
-
-.dark .table{background:#1e1e1e;}
-
-table{width:100%;border-collapse:collapse;}
-th,td{padding:10px;border-bottom:1px solid #eee;}
-
-.receita{color:green;font-weight:bold;}
-.despesa{color:red;font-weight:bold;}
 </style>
 </head>
 
 <body>
 
-<div class="header">
-<h2>Olá 👋</h2>
-<h1>Finance App Pro</h1>
-<button onclick="toggleDark()">🌙 Modo</button>
-</div>
-
 <div class="container">
 
-<div class="cards">
-<div class="card"><h3>Receitas</h3><p id="receitas">0</p></div>
-<div class="card"><h3>Despesas</h3><p id="despesas">0</p></div>
-<div class="card"><h3>Saldo</h3><p id="saldo">0</p></div>
+<!-- HERO -->
+<div class="hero">
+<h1>Seu Nome</h1>
+<p>Desenvolvedor Front-end | JavaScript | UI Moderna</p>
+
+<a class="btn" href="#projetos">Ver Projetos</a>
 </div>
 
-<canvas id="chart"></canvas>
+<!-- SOBRE -->
+<div class="section">
+<div class="title">Sobre mim</div>
 
-<div class="table">
-<table>
-<thead>
-<tr>
-<th>Data</th>
-<th>Descrição</th>
-<th>Categoria</th>
-<th>Tipo</th>
-<th>Valor</th>
-<th>Ações</th>
-</tr>
-</thead>
-<tbody id="lista"></tbody>
-</table>
-</div>
-
-</div>
-
-<button class="fab" onclick="openModal()">+</button>
-
-<div class="modal" id="modal">
-<div class="modal-content">
-
-<h3>Novo lançamento</h3>
-
-<input id="desc" placeholder="Descrição">
-
-<select id="cat">
-<option>Alimentação</option>
-<option>Transporte</option>
-<option>Lazer</option>
-<option>Outros</option>
-</select>
-
-<select id="tipo">
-<option value="receita">Receita</option>
-<option value="despesa">Despesa</option>
-</select>
-
-<input id="valor" type="number" placeholder="Valor">
-
-<button onclick="add()">Salvar</button>
-<button onclick="closeModal()">Fechar</button>
-
+<div class="card">
+<p>
+Sou desenvolvedor front-end focado em criar aplicações web modernas,
+responsivas e com boa experiência de usuário. Tenho projetos usando HTML,
+CSS e JavaScript.
+</p>
 </div>
 </div>
 
-<script>
+<!-- PROJETOS -->
+<div class="section" id="projetos">
+<div class="title">Projetos</div>
 
-let dados = JSON.parse(localStorage.getItem("finance")) || [];
+<div class="card">
+<h3>💰 Finance App Pro</h3>
+<p>Aplicação de controle financeiro com gráficos, categorias e armazenamento local.</p>
 
-let chartInstance;
+<div class="tags">
+<span>HTML</span>
+<span>CSS</span>
+<span>JavaScript</span>
+<span>Chart.js</span>
+</div>
 
-function save(){
-    localStorage.setItem("finance", JSON.stringify(dados));
-}
+<br><br>
 
-function openModal(){modal.style.display="flex";}
-function closeModal(){modal.style.display="none";}
-function toggleDark(){document.body.classList.toggle("dark");}
+<a class="btn" href="https://github.com/" target="_blank">GitHub</a>
+<a class="btn" href="#" target="_blank">Ver Projeto</a>
+</div>
 
-function add(){
+<div class="card">
+<h3>📌 Outros Projetos</h3>
+<p>Mais projetos serão adicionados aqui conforme evolução.</p>
+</div>
 
-    const descV = document.getElementById("desc").value;
-    const catV = document.getElementById("cat").value;
-    const tipoV = document.getElementById("tipo").value;
-    const valorV = parseFloat(document.getElementById("valor").value);
+</div>
 
-    if(!descV || isNaN(valorV)) return;
+<!-- SKILLS -->
+<div class="section">
+<div class="title">Skills</div>
 
-    dados.push({
-        desc:descV,
-        cat:catV,
-        tipo:tipoV,
-        valor:valorV,
-        data:new Date().toLocaleDateString()
-    });
+<div class="card">
+<p>✔ HTML</p>
+<p>✔ CSS</p>
+<p>✔ JavaScript</p>
+<p>✔ Git / GitHub</p>
+</div>
+</div>
 
-    save();
-    render();
-    closeModal();
-}
+<!-- CONTATO -->
+<div class="section">
+<div class="title">Contato</div>
 
-function remove(i){
-    dados.splice(i,1);
-    save();
-    render();
-}
+<div class="card">
+<p>Email: seuemail@email.com</p>
+<p>GitHub: github.com/seuusuario</p>
+<p>LinkedIn: linkedin.com</p>
+</div>
+</div>
 
-function render(){
+<div class="footer">
+Feito com 💙 usando HTML + CSS + JS
+</div>
 
-    let r=0,d=0,catMap={};
-
-    lista.innerHTML="";
-
-    dados.forEach((x,i)=>{
-
-        if(x.tipo==="receita") r+=x.valor;
-        else d+=x.valor;
-
-        catMap[x.cat]=(catMap[x.cat]||0)+x.valor;
-
-        lista.innerHTML+=`
-        <tr>
-            <td>${x.data}</td>
-            <td>${x.desc}</td>
-            <td>${x.cat}</td>
-            <td class="${x.tipo}">${x.tipo}</td>
-            <td>R$ ${x.valor.toFixed(2)}</td>
-            <td><button onclick="remove(${i})">🗑️</button></td>
-        </tr>`;
-    });
-
-    document.getElementById("receitas").innerText=r.toFixed(2);
-    document.getElementById("despesas").innerText=d.toFixed(2);
-    document.getElementById("saldo").innerText=(r-d).toFixed(2);
-
-    const ctx=document.getElementById("chart");
-
-    if(chartInstance) chartInstance.destroy();
-
-    chartInstance=new Chart(ctx,{
-        type:"doughnut",
-        data:{
-            labels:Object.keys(catMap),
-            datasets:[{
-                data:Object.values(catMap),
-                backgroundColor:["#1e88e5","#00c853","#ff5252","#ffca28"]
-            }]
-        }
-    });
-}
-
-render();
-
-</script>
+</div>
 
 </body>
 </html>
