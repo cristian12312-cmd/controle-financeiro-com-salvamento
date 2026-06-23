@@ -3,185 +3,313 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfólio</title>
+<title>Finance App Ultra</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body{
     margin:0;
     font-family:Arial;
-    background: radial-gradient(circle at top, #1e293b, #0f172a);
+    background:#f4f7fb;
+}
+
+.dark{
+    background:#0f172a;
     color:white;
+}
+
+.header{
+    background:linear-gradient(90deg,#1e88e5,#2563eb);
+    color:white;
+    padding:25px;
+    text-align:center;
+    border-radius:0 0 25px 25px;
 }
 
 .container{
-    max-width:900px;
+    max-width:1100px;
     margin:auto;
-    padding:40px 20px;
+    padding:20px;
 }
 
-.hero{
-    text-align:center;
-    padding:80px 20px;
-}
-
-.hero h1{
-    font-size:50px;
-    margin:0;
-    background: linear-gradient(90deg,#60a5fa,#22c55e);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-}
-
-.hero p{
-    color:#94a3b8;
-    margin-top:10px;
-}
-
-.btn{
-    display:inline-block;
-    margin-top:20px;
-    padding:12px 20px;
-    background:#1e88e5;
-    color:white;
-    border-radius:12px;
-    text-decoration:none;
-    transition:0.3s;
-}
-
-.btn:hover{
-    transform:scale(1.05);
-    background:#2563eb;
-}
-
-.section{
-    margin-top:60px;
-}
-
-.title{
-    font-size:22px;
-    margin-bottom:20px;
-    color:#60a5fa;
+/* CARDS */
+.cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-top:-20px;
 }
 
 .card{
-    background:rgba(255,255,255,0.05);
-    padding:20px;
-    border-radius:15px;
-    margin-bottom:15px;
-    border:1px solid rgba(255,255,255,0.1);
-    backdrop-filter: blur(10px);
-}
-
-.card h3{
-    margin:0;
-}
-
-.card p{
-    color:#94a3b8;
-}
-
-.tags span{
-    display:inline-block;
-    padding:5px 10px;
-    background:#1e293b;
-    border-radius:8px;
-    margin-right:5px;
-    margin-top:10px;
-    font-size:12px;
-}
-
-.highlight{
-    border:1px solid #1e88e5;
-    box-shadow:0 0 20px rgba(30,136,229,0.2);
-}
-
-.footer{
+    background:white;
+    padding:15px;
+    border-radius:14px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
     text-align:center;
-    margin-top:60px;
-    color:#64748b;
+}
+
+.dark .card{background:#1e293b;color:white;}
+
+.card h3{margin:0;font-size:13px;color:#666;}
+.card p{font-size:20px;font-weight:bold;margin:5px 0 0;}
+
+/* INPUTS */
+input,select,button{
+    padding:10px;
+    margin:5px;
+    border-radius:8px;
+    border:1px solid #ddd;
+}
+
+button{
+    background:#1e88e5;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+button:hover{opacity:0.9;}
+
+.top{
+    margin-top:15px;
+}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+    background:white;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.dark table{background:#1e293b;}
+
+th,td{
+    padding:10px;
+    border-bottom:1px solid #eee;
+}
+
+.receita{color:green;font-weight:bold;}
+.despesa{color:red;font-weight:bold;}
+
+canvas{
+    margin-top:20px;
+    background:white;
+    border-radius:10px;
+    padding:10px;
+}
+
+.dark canvas{background:#1e293b;}
+
+.badge{
+    padding:5px 10px;
+    border-radius:10px;
+    background:#1e88e5;
+    color:white;
+    font-size:12px;
 }
 </style>
 </head>
 
 <body>
 
+<div class="header">
+<h1>💙 Finance App Ultra</h1>
+<p>Controle financeiro estilo fintech</p>
+<button onclick="toggleDark()">🌙 Modo</button>
+</div>
+
 <div class="container">
 
-<!-- HERO -->
-<div class="hero">
-<h1>Seu Nome</h1>
-<p>Desenvolvedor Front-end | JavaScript | UI Moderna</p>
-<a class="btn" href="#projetos">Ver Projetos</a>
+<!-- DASHBOARD -->
+<div class="cards">
+<div class="card"><h3>Receitas</h3><p id="receitas">0</p></div>
+<div class="card"><h3>Despesas</h3><p id="despesas">0</p></div>
+<div class="card"><h3>Saldo</h3><p id="saldo">0</p></div>
+<div class="card"><h3>Meta</h3><p id="meta">0</p></div>
 </div>
 
-<!-- SOBRE -->
-<div class="section">
-<div class="title">Sobre mim</div>
+<!-- INPUTS -->
+<div class="top">
+<input id="desc" placeholder="Descrição">
 
-<div class="card">
-<p>
-Sou desenvolvedor front-end focado em criar aplicações web modernas,
-responsivas e com experiência de usuário premium. Construo projetos como dashboards e sistemas reais.
-</p>
-</div>
-</div>
+<select id="cat">
+<option>Alimentação</option>
+<option>Transporte</option>
+<option>Lazer</option>
+<option>Saúde</option>
+<option>Outros</option>
+</select>
 
-<!-- PROJETOS -->
-<div class="section" id="projetos">
-<div class="title">Projetos</div>
+<select id="tipo">
+<option value="receita">Receita</option>
+<option value="despesa">Despesa</option>
+</select>
 
-<div class="card highlight">
-<h3>💰 Finance App Pro (PROJETO PRINCIPAL)</h3>
-<p>Aplicação de controle financeiro estilo fintech com gráficos, categorias, dark mode e armazenamento local.</p>
+<input id="valor" type="number" placeholder="Valor">
 
-<div class="tags">
-<span>HTML</span>
-<span>CSS</span>
-<span>JavaScript</span>
-<span>Chart.js</span>
+<button onclick="add()">Adicionar</button>
+<button onclick="limpar()">Limpar</button>
+<button onclick="exportar()">Exportar</button>
 </div>
 
-<br><br>
-
-<a class="btn" href="#">Ver Projeto</a>
-<a class="btn" href="https://github.com/" target="_blank">GitHub</a>
+<!-- META -->
+<div class="top">
+<input id="metaInput" type="number" placeholder="Definir meta mensal">
+<button onclick="setMeta()">Definir Meta</button>
 </div>
 
-<div class="card">
-<h3>📌 Outros Projetos</h3>
-<p>Mais projetos serão adicionados conforme evolução.</p>
+<!-- FILTER -->
+<div class="top">
+<input id="busca" placeholder="Buscar..." oninput="render()">
+
+<select id="filtro" onchange="render()">
+<option value="todos">Todos</option>
+<option value="receita">Receitas</option>
+<option value="despesa">Despesas</option>
+</select>
 </div>
+
+<!-- CHART -->
+<canvas id="chart"></canvas>
+
+<!-- TABLE -->
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Descrição</th>
+<th>Categoria</th>
+<th>Tipo</th>
+<th>Valor</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody id="lista"></tbody>
+</table>
 
 </div>
 
-<!-- SKILLS -->
-<div class="section">
-<div class="title">Skills</div>
+<script>
 
-<div class="card">
-<p>✔ HTML</p>
-<p>✔ CSS</p>
-<p>✔ JavaScript</p>
-<p>✔ Git / GitHub</p>
-</div>
-</div>
+let dados = JSON.parse(localStorage.getItem("financeUltra")) || [];
+let meta = Number(localStorage.getItem("meta")) || 0;
 
-<!-- CONTATO -->
-<div class="section">
-<div class="title">Contato</div>
+function salvar(){
+    localStorage.setItem("financeUltra", JSON.stringify(dados));
+    localStorage.setItem("meta", meta);
+}
 
-<div class="card">
-<p>Email: seuemail@email.com</p>
-<p>GitHub: github.com/seuusuario</p>
-<p>LinkedIn: linkedin.com</p>
-</div>
-</div>
+function toggleDark(){
+    document.body.classList.toggle("dark");
+}
 
-<div class="footer">
-Feito com 💙 por você
-</div>
+function setMeta(){
+    meta = Number(metaInput.value);
+    salvar();
+    render();
+}
 
-</div>
+function add(){
+
+    if(!desc.value || !valor.value) return;
+
+    dados.push({
+        desc:desc.value,
+        cat:cat.value,
+        tipo:tipo.value,
+        valor:Number(valor.value),
+        data:new Date().toLocaleDateString()
+    });
+
+    salvar();
+    render();
+
+    desc.value="";
+    valor.value="";
+}
+
+function limpar(){
+    if(confirm("Apagar tudo?")){
+        dados=[];
+        salvar();
+        render();
+    }
+}
+
+function exportar(){
+    const blob = new Blob([JSON.stringify(dados)],{type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "finance.json";
+    a.click();
+}
+
+function remover(i){
+    dados.splice(i,1);
+    salvar();
+    render();
+}
+
+let chart;
+
+function render(){
+
+    let r=0,d=0,catMap={};
+    const busca = document.getElementById("busca").value.toLowerCase();
+    const filtro = document.getElementById("filtro").value;
+
+    lista.innerHTML="";
+
+    dados.forEach((x,i)=>{
+
+        if(busca && !x.desc.toLowerCase().includes(busca)) return;
+        if(filtro !== "todos" && x.tipo !== filtro) return;
+
+        if(x.tipo==="receita") r+=x.valor;
+        else d+=x.valor;
+
+        catMap[x.cat]=(catMap[x.cat]||0)+x.valor;
+
+        lista.innerHTML+=`
+        <tr>
+            <td>${x.data}</td>
+            <td>${x.desc}</td>
+            <td><span class="badge">${x.cat}</span></td>
+            <td class="${x.tipo}">${x.tipo}</td>
+            <td>R$ ${x.valor.toFixed(2)}</td>
+            <td><button onclick="remover(${i})">❌</button></td>
+        </tr>`;
+    });
+
+    receitas.innerText=r.toFixed(2);
+    despesas.innerText=d.toFixed(2);
+    saldo.innerText=(r-d).toFixed(2);
+    meta.innerText=meta?meta.toFixed(2):"0";
+
+    if(chart) chart.destroy();
+
+    chart=new Chart(chartCanvas,{
+        type:"doughnut",
+        data:{
+            labels:Object.keys(catMap),
+            datasets:[{
+                data:Object.values(catMap),
+                backgroundColor:["#1e88e5","#00c853","#ff5252","#ffca28","#8e44ad"]
+            }]
+        }
+    });
+}
+
+const chartCanvas=document.getElementById("chart");
+
+render();
+
+</script>
 
 </body>
 </html>
