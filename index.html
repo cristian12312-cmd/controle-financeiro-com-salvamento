@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Finance App Pro Max</title>
+<title>Finance Feed</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -11,136 +11,105 @@
 body{
     margin:0;
     font-family:Arial;
-    background:#0f172a;
+    background:#0b1220;
     color:white;
 }
 
-/* LOGIN */
-#login{
-    display:flex;
-    height:100vh;
-    justify-content:center;
-    align-items:center;
+/* HEADER */
+.header{
+    padding:20px;
+    background:#1e88e5;
+    text-align:center;
+}
+
+/* DASH */
+.dashboard{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:10px;
+    padding:10px;
 }
 
 .box{
-    background:#1e293b;
-    padding:25px;
-    border-radius:15px;
-    width:300px;
-    text-align:center;
-}
-
-input,select{
-    width:90%;
-    padding:10px;
-    margin:8px;
-    border-radius:8px;
-    border:none;
-}
-
-button{
-    padding:10px;
-    width:95%;
-    margin-top:10px;
-    border:none;
-    border-radius:8px;
-    background:#1e88e5;
-    color:white;
-    cursor:pointer;
-}
-
-/* APP */
-#app{display:none;}
-
-.header{
-    background:linear-gradient(90deg,#1e88e5,#2563eb);
-    padding:20px;
-    text-align:center;
-}
-
-.container{
-    max-width:1000px;
-    margin:auto;
-    padding:20px;
-}
-
-/* CARDS */
-.cards{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
-}
-
-.card{
-    background:#1e293b;
+    background:#111827;
     padding:15px;
     border-radius:12px;
     text-align:center;
 }
 
-.card h3{margin:0;font-size:13px;color:#94a3b8;}
-.card p{font-size:20px;font-weight:bold;}
+.box h3{margin:0;font-size:12px;color:#94a3b8;}
+.box h2{margin:5px 0 0;}
 
-/* INPUT AREA */
-.area{
-    margin-top:15px;
-}
-
-/* TABLE */
-table{
-    width:100%;
-    margin-top:20px;
-    border-collapse:collapse;
-}
-
-td,th{
+/* INPUT */
+.input{
     padding:10px;
-    border-bottom:1px solid #334155;
+}
+
+input,select{
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+    border-radius:8px;
+    border:none;
+}
+
+button{
+    width:100%;
+    padding:10px;
+    background:#1e88e5;
+    border:none;
+    border-radius:8px;
+    color:white;
+    cursor:pointer;
+}
+
+/* FEED */
+.feed{
+    padding:10px;
+}
+
+.card{
+    background:#111827;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.left{
+    display:flex;
+    flex-direction:column;
+}
+
+.cat{
+    font-size:11px;
+    color:#94a3b8;
+}
+
+.valor{
+    font-weight:bold;
 }
 
 .receita{color:#22c55e;}
 .despesa{color:#ef4444;}
-
-canvas{
-    margin-top:20px;
-    background:#1e293b;
-    border-radius:10px;
-    padding:10px;
-}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div id="login">
-<div class="box">
-<h2>🔐 Login</h2>
-<input id="user" placeholder="Usuário">
-<input id="pass" type="password" placeholder="Senha">
-<button onclick="entrar()">Entrar</button>
-</div>
-</div>
-
-<!-- APP -->
-<div id="app">
-
 <div class="header">
-<h2>💙 Finance App Pro Max</h2>
+<h2>💙 Finance Feed</h2>
 </div>
 
-<div class="container">
-
-<!-- CARDS -->
-<div class="cards">
-<div class="card"><h3>Receitas</h3><p id="receitas">0</p></div>
-<div class="card"><h3>Despesas</h3><p id="despesas">0</p></div>
-<div class="card"><h3>Saldo</h3><p id="saldo">0</p></div>
+<div class="dashboard">
+<div class="box"><h3>SALDO</h3><h2 id="saldo">0</h2></div>
+<div class="box"><h3>ENTRADA</h3><h2 id="r">0</h2></div>
+<div class="box"><h3>SAÍDA</h3><h2 id="d">0</h2></div>
 </div>
 
-<!-- INPUT -->
-<div class="area">
+<div class="input">
 
 <input id="desc" placeholder="Descrição">
 
@@ -149,7 +118,6 @@ canvas{
 <option>Transporte</option>
 <option>Lazer</option>
 <option>Saúde</option>
-<option>Outros</option>
 </select>
 
 <select id="tipo">
@@ -160,63 +128,26 @@ canvas{
 <input id="valor" type="number" placeholder="Valor">
 
 <button onclick="add()">Adicionar</button>
-<button onclick="limpar()">Limpar Tudo</button>
 
 </div>
 
-<!-- FILTER -->
-<div class="area">
-<input id="busca" placeholder="Buscar..." oninput="render()">
-
-<select id="filtro" onchange="render()">
-<option value="todos">Todos</option>
-<option value="receita">Receita</option>
-<option value="despesa">Despesa</option>
-</select>
-</div>
-
-<!-- CHART -->
 <canvas id="chart"></canvas>
 
-<!-- TABLE -->
-<table>
-<thead>
-<tr>
-<th>Data</th>
-<th>Descrição</th>
-<th>Categoria</th>
-<th>Tipo</th>
-<th>Valor</th>
-<th>Ação</th>
-</tr>
-</thead>
-<tbody id="lista"></tbody>
-</table>
-
-</div>
-</div>
+<div class="feed" id="feed"></div>
 
 <script>
 
-let dados = JSON.parse(localStorage.getItem("finance_pro")) || [];
+let dados = JSON.parse(localStorage.getItem("feed_finance")) || [];
 
-function entrar(){
-    if(user.value && pass.value){
-        login.style.display="none";
-        app.style.display="block";
-        render();
-    }
-}
-
-function salvar(){
-    localStorage.setItem("finance_pro", JSON.stringify(dados));
+function save(){
+    localStorage.setItem("feed_finance", JSON.stringify(dados));
 }
 
 function add(){
 
     if(!desc.value || !valor.value) return;
 
-    dados.push({
+    dados.unshift({
         desc:desc.value,
         cat:cat.value,
         tipo:tipo.value,
@@ -224,25 +155,17 @@ function add(){
         data:new Date().toLocaleDateString()
     });
 
-    salvar();
+    save();
     render();
 
     desc.value="";
     valor.value="";
 }
 
-function remover(i){
+function remove(i){
     dados.splice(i,1);
-    salvar();
+    save();
     render();
-}
-
-function limpar(){
-    if(confirm("Apagar tudo?")){
-        dados=[];
-        salvar();
-        render();
-    }
 }
 
 let chart;
@@ -250,36 +173,33 @@ let chart;
 function render(){
 
     let r=0,d=0;
-    let catMap={};
+    let map={};
 
-    const busca = document.getElementById("busca").value.toLowerCase();
-    const filtro = document.getElementById("filtro").value;
-
-    lista.innerHTML="";
+    feed.innerHTML="";
 
     dados.forEach((x,i)=>{
-
-        if(busca && !x.desc.toLowerCase().includes(busca)) return;
-        if(filtro!=="todos" && x.tipo!==filtro) return;
 
         if(x.tipo==="receita") r+=x.valor;
         else d+=x.valor;
 
-        catMap[x.cat]=(catMap[x.cat]||0)+x.valor;
+        map[x.cat]=(map[x.cat]||0)+x.valor;
 
-        lista.innerHTML+=`
-        <tr>
-            <td>${x.data}</td>
-            <td>${x.desc}</td>
-            <td>${x.cat}</td>
-            <td class="${x.tipo}">${x.tipo}</td>
-            <td>R$ ${x.valor.toFixed(2)}</td>
-            <td><button onclick="remover(${i})">❌</button></td>
-        </tr>`;
+        feed.innerHTML+=`
+        <div class="card">
+            <div class="left">
+                <strong>${x.desc}</strong>
+                <span class="cat">${x.cat} • ${x.data}</span>
+            </div>
+
+            <div style="text-align:right">
+                <div class="${x.tipo}">R$ ${x.valor.toFixed(2)}</div>
+                <button onclick="remove(${i})">x</button>
+            </div>
+        </div>`;
     });
 
-    receitas.innerText=r.toFixed(2);
-    despesas.innerText=d.toFixed(2);
+    r.innerText=r.toFixed(2);
+    d.innerText=d.toFixed(2);
     saldo.innerText=(r-d).toFixed(2);
 
     if(chart) chart.destroy();
@@ -287,10 +207,10 @@ function render(){
     chart=new Chart(chartCanvas,{
         type:"doughnut",
         data:{
-            labels:Object.keys(catMap),
+            labels:Object.keys(map),
             datasets:[{
-                data:Object.values(catMap),
-                backgroundColor:["#1e88e5","#22c55e","#ef4444","#facc15","#a855f7"]
+                data:Object.values(map),
+                backgroundColor:["#1e88e5","#22c55e","#ef4444","#facc15"]
             }]
         }
     });
