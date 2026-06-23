@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Finance App Ultra</title>
+<title>Bank App</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -11,24 +11,59 @@
 body{
     margin:0;
     font-family:Arial;
-    background:#f4f7fb;
-}
-
-.dark{
     background:#0f172a;
     color:white;
 }
 
+/* LOGIN */
+#login{
+    display:flex;
+    height:100vh;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+}
+
+.login-box{
+    background:#1e293b;
+    padding:25px;
+    border-radius:15px;
+    width:300px;
+    text-align:center;
+}
+
+input{
+    width:90%;
+    padding:10px;
+    margin:8px;
+    border-radius:8px;
+    border:none;
+}
+
+button{
+    padding:10px;
+    width:95%;
+    margin-top:10px;
+    border:none;
+    border-radius:8px;
+    background:#1e88e5;
+    color:white;
+    cursor:pointer;
+}
+
+/* APP */
+#app{
+    display:none;
+}
+
 .header{
     background:linear-gradient(90deg,#1e88e5,#2563eb);
-    color:white;
-    padding:25px;
+    padding:20px;
     text-align:center;
-    border-radius:0 0 25px 25px;
 }
 
 .container{
-    max-width:1100px;
+    max-width:900px;
     margin:auto;
     padding:20px;
 }
@@ -36,156 +71,110 @@ body{
 /* CARDS */
 .cards{
     display:grid;
-    grid-template-columns:repeat(4,1fr);
+    grid-template-columns:repeat(3,1fr);
     gap:10px;
-    margin-top:-20px;
 }
 
 .card{
-    background:white;
+    background:#1e293b;
     padding:15px;
-    border-radius:14px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+    border-radius:12px;
     text-align:center;
 }
 
-.dark .card{background:#1e293b;color:white;}
-
-.card h3{margin:0;font-size:13px;color:#666;}
+.card h3{margin:0;font-size:13px;color:#94a3b8;}
 .card p{font-size:20px;font-weight:bold;margin:5px 0 0;}
 
-/* INPUTS */
-input,select,button{
+/* NAV */
+.nav{
+    position:fixed;
+    bottom:0;
+    width:100%;
+    display:flex;
+    justify-content:space-around;
+    background:#1e293b;
     padding:10px;
-    margin:5px;
-    border-radius:8px;
-    border:1px solid #ddd;
 }
 
-button{
-    background:#1e88e5;
-    color:white;
-    border:none;
-    cursor:pointer;
+.nav button{
+    width:auto;
+    background:none;
 }
 
-button:hover{opacity:0.9;}
+/* SECTIONS */
+.section{display:none;}
+.active{display:block;}
 
-.top{
-    margin-top:15px;
-}
-
-/* TABLE */
 table{
     width:100%;
+    margin-top:15px;
     border-collapse:collapse;
-    margin-top:20px;
-    background:white;
-    border-radius:10px;
-    overflow:hidden;
 }
 
-.dark table{background:#1e293b;}
-
-th,td{
+td,th{
     padding:10px;
-    border-bottom:1px solid #eee;
+    border-bottom:1px solid #334155;
 }
 
-.receita{color:green;font-weight:bold;}
-.despesa{color:red;font-weight:bold;}
-
-canvas{
-    margin-top:20px;
-    background:white;
-    border-radius:10px;
-    padding:10px;
-}
-
-.dark canvas{background:#1e293b;}
-
-.badge{
-    padding:5px 10px;
-    border-radius:10px;
-    background:#1e88e5;
-    color:white;
-    font-size:12px;
-}
+.receita{color:#22c55e;}
+.despesa{color:#ef4444;}
 </style>
 </head>
 
 <body>
 
+<!-- LOGIN -->
+<div id="login">
+<div class="login-box">
+<h2>🔐 Entrar</h2>
+<input id="user" placeholder="Usuário">
+<input id="pass" type="password" placeholder="Senha">
+<button onclick="entrar()">Entrar</button>
+</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
 <div class="header">
-<h1>💙 Finance App Ultra</h1>
-<p>Controle financeiro estilo fintech</p>
-<button onclick="toggleDark()">🌙 Modo</button>
+<h2>💙 Meu Bank</h2>
 </div>
 
 <div class="container">
 
-<!-- DASHBOARD -->
+<!-- HOME -->
+<div id="home" class="section active">
+
 <div class="cards">
+<div class="card"><h3>Saldo</h3><p id="saldo">0</p></div>
 <div class="card"><h3>Receitas</h3><p id="receitas">0</p></div>
 <div class="card"><h3>Despesas</h3><p id="despesas">0</p></div>
-<div class="card"><h3>Saldo</h3><p id="saldo">0</p></div>
-<div class="card"><h3>Meta</h3><p id="meta">0</p></div>
 </div>
 
-<!-- INPUTS -->
-<div class="top">
-<input id="desc" placeholder="Descrição">
+<canvas id="chart"></canvas>
 
-<select id="cat">
-<option>Alimentação</option>
-<option>Transporte</option>
-<option>Lazer</option>
-<option>Saúde</option>
-<option>Outros</option>
-</select>
+</div>
+
+<!-- TRANSACOES -->
+<div id="transacoes" class="section">
+
+<input id="desc" placeholder="Descrição">
+<input id="valor" type="number" placeholder="Valor">
 
 <select id="tipo">
 <option value="receita">Receita</option>
 <option value="despesa">Despesa</option>
 </select>
 
-<input id="valor" type="number" placeholder="Valor">
-
 <button onclick="add()">Adicionar</button>
-<button onclick="limpar()">Limpar</button>
-<button onclick="exportar()">Exportar</button>
-</div>
 
-<!-- META -->
-<div class="top">
-<input id="metaInput" type="number" placeholder="Definir meta mensal">
-<button onclick="setMeta()">Definir Meta</button>
-</div>
-
-<!-- FILTER -->
-<div class="top">
-<input id="busca" placeholder="Buscar..." oninput="render()">
-
-<select id="filtro" onchange="render()">
-<option value="todos">Todos</option>
-<option value="receita">Receitas</option>
-<option value="despesa">Despesas</option>
-</select>
-</div>
-
-<!-- CHART -->
-<canvas id="chart"></canvas>
-
-<!-- TABLE -->
 <table>
 <thead>
 <tr>
-<th>Data</th>
 <th>Descrição</th>
-<th>Categoria</th>
 <th>Tipo</th>
 <th>Valor</th>
-<th>Ação</th>
+<th></th>
 </tr>
 </thead>
 <tbody id="lista"></tbody>
@@ -193,24 +182,35 @@ canvas{
 
 </div>
 
+</div>
+
+<!-- NAV -->
+<div class="nav">
+<button onclick="nav('home')">🏠</button>
+<button onclick="nav('transacoes')">💰</button>
+</div>
+
+</div>
+
 <script>
 
-let dados = JSON.parse(localStorage.getItem("financeUltra")) || [];
-let meta = Number(localStorage.getItem("meta")) || 0;
+let dados = JSON.parse(localStorage.getItem("bank")) || [];
+
+function entrar(){
+    if(user.value && pass.value){
+        login.style.display="none";
+        app.style.display="block";
+        render();
+    }
+}
+
+function nav(id){
+    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
 
 function salvar(){
-    localStorage.setItem("financeUltra", JSON.stringify(dados));
-    localStorage.setItem("meta", meta);
-}
-
-function toggleDark(){
-    document.body.classList.toggle("dark");
-}
-
-function setMeta(){
-    meta = Number(metaInput.value);
-    salvar();
-    render();
+    localStorage.setItem("bank", JSON.stringify(dados));
 }
 
 function add(){
@@ -219,10 +219,8 @@ function add(){
 
     dados.push({
         desc:desc.value,
-        cat:cat.value,
         tipo:tipo.value,
-        valor:Number(valor.value),
-        data:new Date().toLocaleDateString()
+        valor:Number(valor.value)
     });
 
     salvar();
@@ -230,23 +228,6 @@ function add(){
 
     desc.value="";
     valor.value="";
-}
-
-function limpar(){
-    if(confirm("Apagar tudo?")){
-        dados=[];
-        salvar();
-        render();
-    }
-}
-
-function exportar(){
-    const blob = new Blob([JSON.stringify(dados)],{type:"application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "finance.json";
-    a.click();
 }
 
 function remover(i){
@@ -259,27 +240,18 @@ let chart;
 
 function render(){
 
-    let r=0,d=0,catMap={};
-    const busca = document.getElementById("busca").value.toLowerCase();
-    const filtro = document.getElementById("filtro").value;
+    let r=0,d=0;
 
     lista.innerHTML="";
 
     dados.forEach((x,i)=>{
 
-        if(busca && !x.desc.toLowerCase().includes(busca)) return;
-        if(filtro !== "todos" && x.tipo !== filtro) return;
-
         if(x.tipo==="receita") r+=x.valor;
         else d+=x.valor;
 
-        catMap[x.cat]=(catMap[x.cat]||0)+x.valor;
-
         lista.innerHTML+=`
         <tr>
-            <td>${x.data}</td>
             <td>${x.desc}</td>
-            <td><span class="badge">${x.cat}</span></td>
             <td class="${x.tipo}">${x.tipo}</td>
             <td>R$ ${x.valor.toFixed(2)}</td>
             <td><button onclick="remover(${i})">❌</button></td>
@@ -289,17 +261,16 @@ function render(){
     receitas.innerText=r.toFixed(2);
     despesas.innerText=d.toFixed(2);
     saldo.innerText=(r-d).toFixed(2);
-    meta.innerText=meta?meta.toFixed(2):"0";
 
     if(chart) chart.destroy();
 
     chart=new Chart(chartCanvas,{
         type:"doughnut",
         data:{
-            labels:Object.keys(catMap),
+            labels:["Receitas","Despesas"],
             datasets:[{
-                data:Object.values(catMap),
-                backgroundColor:["#1e88e5","#00c853","#ff5252","#ffca28","#8e44ad"]
+                data:[r,d],
+                backgroundColor:["#22c55e","#ef4444"]
             }]
         }
     });
