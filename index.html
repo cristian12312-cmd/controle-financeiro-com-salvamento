@@ -17,13 +17,13 @@ body{
 
 /* HEADER */
 .header{
-    padding:20px;
     background:#1e88e5;
+    padding:20px;
     text-align:center;
 }
 
-/* DASH */
-.dashboard{
+/* CARDS */
+.top{
     display:grid;
     grid-template-columns:1fr 1fr 1fr;
     gap:10px;
@@ -37,10 +37,10 @@ body{
     text-align:center;
 }
 
-.box h3{margin:0;font-size:12px;color:#94a3b8;}
+.box h4{margin:0;font-size:12px;color:#94a3b8;}
 .box h2{margin:5px 0 0;}
 
-/* INPUT */
+/* INPUT FLOAT */
 .input{
     padding:10px;
 }
@@ -63,12 +63,12 @@ button{
     cursor:pointer;
 }
 
-/* FEED */
+/* FEED (NOVA IDEIA REAL) */
 .feed{
     padding:10px;
 }
 
-.card{
+.item{
     background:#111827;
     padding:15px;
     border-radius:12px;
@@ -94,6 +94,11 @@ button{
 
 .receita{color:#22c55e;}
 .despesa{color:#ef4444;}
+
+.small{
+    font-size:12px;
+    color:#64748b;
+}
 </style>
 </head>
 
@@ -101,12 +106,13 @@ button{
 
 <div class="header">
 <h2>💙 Finance Feed</h2>
+<p class="small">visual moderno estilo app real</p>
 </div>
 
-<div class="dashboard">
-<div class="box"><h3>SALDO</h3><h2 id="saldo">0</h2></div>
-<div class="box"><h3>ENTRADA</h3><h2 id="r">0</h2></div>
-<div class="box"><h3>SAÍDA</h3><h2 id="d">0</h2></div>
+<div class="top">
+<div class="box"><h4>SALDO</h4><h2 id="saldo">0</h2></div>
+<div class="box"><h4>ENTRADA</h4><h2 id="r">0</h2></div>
+<div class="box"><h4>SAÍDA</h4><h2 id="d">0</h2></div>
 </div>
 
 <div class="input">
@@ -185,14 +191,16 @@ function render(){
         map[x.cat]=(map[x.cat]||0)+x.valor;
 
         feed.innerHTML+=`
-        <div class="card">
+        <div class="item">
             <div class="left">
                 <strong>${x.desc}</strong>
                 <span class="cat">${x.cat} • ${x.data}</span>
             </div>
 
             <div style="text-align:right">
-                <div class="${x.tipo}">R$ ${x.valor.toFixed(2)}</div>
+                <div class="${x.tipo}">
+                    R$ ${x.valor.toFixed(2)}
+                </div>
                 <button onclick="remove(${i})">x</button>
             </div>
         </div>`;
