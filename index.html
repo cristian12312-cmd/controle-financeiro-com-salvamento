@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Finance Cloud Pro Max</title>
+<title>Finance Cloud Pro Max 2.0</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -16,87 +16,116 @@
 body{
     margin:0;
     font-family:Arial;
-    background:#0b1220;
+    background:linear-gradient(135deg,#0b1220,#111827);
     color:white;
 }
 
-header{
-    background:#1e88e5;
-    padding:20px;
-    text-align:center;
-}
-
-.container{
-    max-width:900px;
-    margin:auto;
-    padding:10px;
-}
-
-.login-box{
-    display:flex;
+/* LOGIN */
+.login{
     height:100vh;
+    display:flex;
     justify-content:center;
     align-items:center;
 }
 
 .card{
-    background:#111827;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(10px);
     padding:20px;
-    border-radius:12px;
+    border-radius:16px;
     width:320px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
 }
 
 input,select,button{
     width:100%;
     padding:10px;
     margin-top:8px;
-    border-radius:8px;
+    border-radius:10px;
     border:none;
+    outline:none;
 }
 
 button{
     background:#1e88e5;
     color:white;
     cursor:pointer;
+    transition:0.2s;
 }
+button:hover{transform:scale(1.03);}
 
-.top{
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:10px;
-    margin-top:10px;
-}
-
-.box{
-    background:#111827;
+/* HEADER */
+header{
+    background:rgba(30,136,229,0.9);
     padding:15px;
-    border-radius:12px;
     text-align:center;
 }
 
+/* DASHBOARD */
+.dashboard{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    padding:10px;
+}
+
+.cardBox{
+    background:rgba(255,255,255,0.05);
+    padding:15px;
+    border-radius:12px;
+    text-align:center;
+    backdrop-filter:blur(10px);
+    transition:0.2s;
+}
+.cardBox:hover{transform:scale(1.03);}
+
+/* INPUT AREA */
+.inputs{
+    padding:10px;
+}
+
+/* FEED */
 .feed{
-    margin-top:10px;
+    padding:10px;
 }
 
 .item{
-    background:#111827;
-    padding:15px;
-    border-radius:12px;
+    background:rgba(255,255,255,0.05);
     margin-bottom:10px;
+    padding:12px;
+    border-radius:12px;
     display:flex;
     justify-content:space-between;
+    backdrop-filter:blur(8px);
 }
 
 .receita{color:#22c55e;font-weight:bold;}
 .despesa{color:#ef4444;font-weight:bold;}
 
-.del{
-    background:#ef4444;
-    border:none;
-    padding:5px 10px;
-    border-radius:6px;
-    cursor:pointer;
-    margin-top:5px;
+.small{
+    font-size:12px;
+    color:#94a3b8;
+}
+
+/* FILTER */
+.filters{
+    display:flex;
+    gap:10px;
+    padding:10px;
+}
+
+.filters input{
+    flex:1;
+}
+
+/* ANIMATION */
+.fade{
+    animation:fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn{
+    from{opacity:0;transform:translateY(10px);}
+    to{opacity:1;transform:translateY(0);}
 }
 </style>
 </head>
@@ -104,13 +133,11 @@ button{
 <body>
 
 <!-- LOGIN -->
-<div class="login-box" id="loginBox">
+<div class="login" id="loginBox">
 <div class="card">
-<h3>💙 Finance Cloud Login</h3>
-
+<h2>💙 Finance Cloud</h2>
 <input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Senha">
-
+<input id="pass" type="password" placeholder="Senha">
 <button onclick="login()">Entrar</button>
 <button onclick="register()">Criar conta</button>
 </div>
@@ -120,31 +147,43 @@ button{
 <div id="app" style="display:none">
 
 <header>
-<h2>💙 Finance Cloud Pro Max</h2>
+<h2>💙 Finance Cloud Pro Max 2.0</h2>
 <button onclick="logout()">Sair</button>
 </header>
 
-<div class="container">
-
-<div class="top">
-<div class="box">
-<h4>SALDO</h4>
-<h2 id="saldo">R$ 0,00</h2>
+<!-- DASHBOARD -->
+<div class="dashboard">
+<div class="cardBox">
+<h4>Saldo</h4>
+<h2 id="saldo">0</h2>
 </div>
 
-<div class="box">
-<h4>ENTRADA</h4>
-<h2 id="entrada">R$ 0,00</h2>
+<div class="cardBox">
+<h4>Receitas</h4>
+<h2 id="receitas">0</h2>
 </div>
 
-<div class="box">
-<h4>SAÍDA</h4>
-<h2 id="saida">R$ 0,00</h2>
+<div class="cardBox">
+<h4>Despesas</h4>
+<h2 id="despesas">0</h2>
 </div>
 </div>
 
-<br>
+<!-- FILTERS -->
+<div class="filters">
+<input id="search" placeholder="Buscar..." oninput="render()">
 
+<select id="month" onchange="render()">
+<option value="">Todos meses</option>
+<option>01</option><option>02</option><option>03</option>
+<option>04</option><option>05</option><option>06</option>
+<option>07</option><option>08</option><option>09</option>
+<option>10</option><option>11</option><option>12</option>
+</select>
+</div>
+
+<!-- INPUTS -->
+<div class="inputs">
 <input id="desc" placeholder="Descrição">
 
 <select id="cat">
@@ -162,21 +201,22 @@ button{
 <input id="valor" type="number" placeholder="Valor">
 
 <button onclick="add()">Adicionar</button>
+</div>
 
-<canvas id="chart"></canvas>
+<canvas id="chart1"></canvas>
+<canvas id="chart2"></canvas>
 
 <div class="feed" id="feed"></div>
 
 </div>
-</div>
 
 <script>
 
-// 🔥 FIREBASE CONFIG (COLOQUE O SEU AQUI)
+/* FIREBASE */
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_AUTH_DOMAIN",
-  projectId: "SEU_PROJECT_ID"
+  apiKey: "SUA_API",
+  authDomain: "SEU_AUTH",
+  projectId: "SEU_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -184,137 +224,164 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-let user = null;
-let dados = [];
-let chart;
+let user=null;
+let dados=[];
 
-const format = v =>
-    v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-
-// LOGIN
+/* LOGIN */
 function login(){
-    auth.signInWithEmailAndPassword(email.value,password.value);
+auth.signInWithEmailAndPassword(email.value,pass.value);
 }
 
 function register(){
-    auth.createUserWithEmailAndPassword(email.value,password.value);
+auth.createUserWithEmailAndPassword(email.value,pass.value);
 }
 
 function logout(){
-    auth.signOut();
+auth.signOut();
 }
 
-// AUTH STATE
+/* AUTH */
 auth.onAuthStateChanged(async u=>{
-    if(u){
-        user = u;
-        loginBox.style.display="none";
-        app.style.display="block";
-        load();
-    }else{
-        loginBox.style.display="flex";
-        app.style.display="none";
-    }
+if(u){
+user=u;
+loginBox.style.display="none";
+app.style.display="block";
+load();
+}else{
+loginBox.style.display="flex";
+app.style.display="none";
+}
 });
 
-// ADD
+/* ADD */
 async function add(){
+if(!desc.value||!valor.value) return;
 
-    if(!desc.value || !valor.value) return;
+await db.collection("users")
+.doc(user.uid)
+.collection("fin")
+.add({
+desc:desc.value,
+cat:cat.value,
+tipo:tipo.value,
+valor:Number(valor.value),
+date:new Date().toISOString()
+});
 
-    await db.collection("users")
-    .doc(user.uid)
-    .collection("finance")
-    .add({
-        desc: desc.value,
-        cat: cat.value,
-        tipo: tipo.value,
-        valor: Number(valor.value),
-        data: new Date().toLocaleDateString()
-    });
+desc.value="";
+valor.value="";
 
-    desc.value="";
-    valor.value="";
-
-    load();
+load();
 }
 
-// DELETE
-async function remove(id){
-    await db.collection("users")
-    .doc(user.uid)
-    .collection("finance")
-    .doc(id)
-    .delete();
-
-    load();
-}
-
-// LOAD
+/* LOAD */
 async function load(){
+const snap=await db.collection("users")
+.doc(user.uid)
+.collection("fin")
+.get();
 
-    const snap = await db.collection("users")
-    .doc(user.uid)
-    .collection("finance")
-    .get();
+dados=snap.docs.map(d=>({id:d.id,...d.data()}));
 
-    dados = snap.docs.map(d=>({id:d.id,...d.data()}));
-    render();
+render();
 }
 
-// RENDER
+/* DELETE */
+async function remove(id){
+await db.collection("users")
+.doc(user.uid)
+.collection("fin")
+.doc(id)
+.delete();
+
+load();
+}
+
+/* FORMAT */
+const format=v=>v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+
+/* RENDER */
+let chart1,chart2;
+
 function render(){
 
-    let r=0,d=0,map={};
+let r=0,d=0;
+let catMap={};
 
-    let html="";
+let filtered=[...dados];
 
-    dados.forEach(x=>{
+/* SEARCH */
+if(search.value){
+filtered=filtered.filter(x=>
+x.desc.toLowerCase().includes(search.value.toLowerCase())
+);
+}
 
-        const v = Number(x.valor);
+/* MONTH FILTER */
+if(month.value){
+filtered=filtered.filter(x=>
+new Date(x.date).getMonth()+1==month.value
+);
+}
 
-        if(x.tipo==="receita") r+=v;
-        else d+=v;
+let html="";
 
-        map[x.cat]=(map[x.cat]||0)+v;
+filtered.forEach(x=>{
 
-        html+=`
-        <div class="item">
-            <div>
-                <b>${x.desc}</b><br>
-                <small>${x.cat} • ${x.data}</small><br>
-                <button class="del" onclick="remove('${x.id}')">remover</button>
-            </div>
-            <div class="${x.tipo}">
-                ${x.tipo==="receita"?"+":"-"} ${format(v)}
-            </div>
-        </div>`;
-    });
+const v=x.valor;
 
-    feed.innerHTML=html;
+if(x.tipo==="receita")r+=v;
+else d+=v;
 
-    saldo.innerText=format(r-d);
-    entrada.innerText=format(r);
-    saida.innerText=format(d);
+catMap[x.cat]=(catMap[x.cat]||0)+v;
 
-    if(chart) chart.destroy();
+html+=`
+<div class="item fade">
+<div>
+<b>${x.desc}</b><br>
+<span class="small">${x.cat}</span>
+<button onclick="remove('${x.id}')">🗑</button>
+</div>
+<div class="${x.tipo}">
+${x.tipo==="receita"?"+":"-"} ${format(v)}
+</div>
+</div>`;
+});
 
-    const labels = Object.keys(map);
-    const values = Object.values(map);
+feed.innerHTML=html;
 
-    chart = new Chart(chartCanvas,{
-        type:"doughnut",
-        data:{
-            labels,
-            datasets:[{
-                data:values,
-                backgroundColor:[
-                    "#1e88e5","#22c55e","#ef4444",
-                    "#facc15","#a855f7","#06b6d4"
-                ]
-            }]
-        }
-    });
+/* DASH */
+saldo.innerText=format(r-d);
+receitas.innerText=format(r);
+despesas.innerText=format(d);
+
+/* CHART 1 */
+if(chart1)chart1.destroy();
+
+chart1=new Chart(chart1Canvas,{
+type:"doughnut",
+data:{
+labels:Object.keys(catMap),
+datasets:[{
+data:Object.values(catMap),
+backgroundColor:["#1e88e5","#22c55e","#ef4444","#facc15","#a855f7"]
+}]
+}
+});
+
+/* CHART 2 */
+if(chart2)chart2.destroy();
+
+chart2=new Chart(chart2Canvas,{
+type:"bar",
+data:{
+labels:["Receitas","Despesas"],
+datasets:[{
+data:[r,d],
+backgroundColor:["#22c55e","#ef4444"]
+}]
+}
+});
 }
 
 </script>
